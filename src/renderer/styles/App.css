@@ -1,65 +1,57 @@
 @import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
-/*
- * @NOTE: Prepend a `~` to css file paths that are in your node_modules
- *        See https://github.com/webpack-contrib/sass-loader#imports
- */
 body {
+  font-family: 'Inter';
   position: relative;
-  color: white;
   height: 100vh;
-  background: linear-gradient(
-    200.96deg,
-    #fedc2a -29.09%,
-    #dd5789 51.77%,
-    #7a2c9e 129.35%
-  );
-  font-family: sans-serif;
-  overflow-y: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 100vw;
+  user-select: none;
+  -webkit-app-region: no-drag;
+}
+#root {
+  height: 100%;
 }
 
-button {
-  background-color: white;
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: none;
-  appearance: none;
-  font-size: 1.3rem;
-  box-shadow:
-    0px 8px 28px -6px rgba(24, 39, 75, 0.12),
-    0px 18px 88px -4px rgba(24, 39, 75, 0.14);
-  transition: all ease-in 0.1s;
-  cursor: pointer;
-  opacity: 0.9;
-}
+@keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  @keyframes scale-bounce {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+  
+  /* Use only float + optional scale (NO rotate) */
+  .animate-float-slow {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-float-medium {
+    animation: float 4s ease-in-out infinite;
+  }
+  
+  .animate-float-fast {
+    animation: float 2.5s ease-in-out infinite;
+  }
+  
+  .animate-scale-bounce {
+    animation: scale-bounce 5s ease-in-out infinite;
+  }
+  
 
-button:hover {
-  transform: scale(1.05);
-  opacity: 1;
-}
-
-li {
-  list-style: none;
-}
-
-a {
-  text-decoration: none;
-  height: fit-content;
-  width: fit-content;
-  margin: 10px;
-}
-
-a:hover {
-  opacity: 1;
-  text-decoration: none;
-}
-
-.Hello {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px 0;
+.project-right-side-text {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(12px);
 }
