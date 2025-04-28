@@ -35,6 +35,9 @@ importers:
       react-router-dom:
         specifier: ^7.5.1
         version: 7.5.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      source-map-support:
+        specifier: ^0.5.21
+        version: 0.5.21
     devDependencies:
       '@electron/rebuild':
         specifier: ^3.7.1

@@ -1,7 +1,7 @@
-import { Icon } from '@iconify/react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/utility/Button';
+import { Icon } from '@iconify/react';
 import Input from '../components/utility/Input';
 
 function ProjectCreate() {
@@ -58,7 +58,7 @@ function ProjectCreate() {
             />
             <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-cyan-500"></div>
             <div
-              className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full 
+              className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full
               peer-checked:translate-x-5 transition-transform"
             ></div>
           </label>
