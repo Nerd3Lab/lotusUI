@@ -13,41 +13,55 @@ body {
   height: 100%;
 }
 
+html,
+body {
+  font-size: 90%;
+}
+
+/* resposive */
+@media (max-width: 1200px) {
+  html,
+  body {
+    font-size: 90%;
+  }
+}
+
 @keyframes float {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
+  0%,
+  100% {
+    transform: translateY(0);
   }
-  
-  @keyframes scale-bounce {
-    0%, 100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
+  50% {
+    transform: translateY(-10px);
   }
-  
-  /* Use only float + optional scale (NO rotate) */
-  .animate-float-slow {
-    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes scale-bounce {
+  0%,
+  100% {
+    transform: scale(1);
   }
-  
-  .animate-float-medium {
-    animation: float 4s ease-in-out infinite;
+  50% {
+    transform: scale(1.05);
   }
-  
-  .animate-float-fast {
-    animation: float 2.5s ease-in-out infinite;
-  }
-  
-  .animate-scale-bounce {
-    animation: scale-bounce 5s ease-in-out infinite;
-  }
-  
+}
+
+/* Use only float + optional scale (NO rotate) */
+.animate-float-slow {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-medium {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-fast {
+  animation: float 2.5s ease-in-out infinite;
+}
+
+.animate-scale-bounce {
+  animation: scale-bounce 5s ease-in-out infinite;
+}
 
 .project-right-side-text {
   border-radius: 16px;

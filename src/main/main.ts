@@ -14,6 +14,11 @@ import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { appPath } from '@/main/utils/config';
+import { IpcHandler } from '@/main/services/ipcHandler';
+import { installExtension, REDUX_DEVTOOLS } from 'electron-devtools-installer';
+
+console.log(appPath);
 
 class AppUpdater {
   constructor() {
@@ -43,22 +48,18 @@ if (isDebug) {
   require('electron-debug').default();
 }
 
-const installExtensions = async () => {
-  const installer = require('electron-devtools-installer');
-  const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS'];
-
-  return installer
-    .default(
-      extensions.map((name) => installer[name]),
-      forceDownload,
+// ctl shift p to open pestiside
+const installREDUX = async () => {
+  return installExtension([REDUX_DEVTOOLS])
+    .then(([redux, react]: any[]) =>
+      console.log(`Added Extensions:  ${redux.name}, ${react.name}`),
     )
-    .catch(console.log);
+    .catch((err: any) => console.log('An error occurred: ', err));
 };
 
 const createWindow = async () => {
   if (isDebug) {
-    await installExtensions();
+    await installREDUX();
   }
 
   const RESOURCES_PATH = app.isPackaged
@@ -110,6 +111,9 @@ const createWindow = async () => {
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
+
+  // Initialize IPC Handler
+  new IpcHandler(mainWindow, autoUpdater);
 };
 
 /**

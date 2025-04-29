@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import ProjectItem from '../components/project/ProjectItem';
 import Button from '../components/utility/Button';
 import SearchBox from '../components/utility/SearchBox';
+import { useProjectList } from '@/renderer/hooks/useProjectList';
+import { formatTimestamp } from '@/renderer/utils/index';
 
 function ProjectPage() {
   const navigate = useNavigate();
@@ -13,11 +15,21 @@ function ProjectPage() {
     setSearch(e.target.value);
   };
 
+  const {
+    data: projectLists,
+    loading: projectListsLoading,
+    error: projectListsError,
+  } = useProjectList();
+
+  console.log({ projectLists });
+
   return (
     <div className="w-full flex flex-col gap-3 relative">
       <div>
         <div className="flex justify-between items-center">
-          <h2 className="text-black font-semibold text-2xl">All Project (2)</h2>
+          <h2 className="text-black font-semibold text-2xl">
+            All Project ({projectLists.length})
+          </h2>
           <Button onClick={() => navigate('/create')}>
             <div className="flex items-center gap-2">
               <Icon icon="ei:plus" className="text-2xl" />
@@ -25,17 +37,23 @@ function ProjectPage() {
             </div>
           </Button>
         </div>
-        <p className="text-gray-600">Manage and monitor your Superchain</p>
+        <p className="text-gray-600">
+          Manage and monitor your local SUI development
+        </p>
       </div>
       <SearchBox value={search} onChange={handleChange} />
       <div className="flex flex-col gap-2 w-full max-h-[50vh] overflow-y-scroll overflow-x-hidden pr-4">
-        <ProjectItem
-          name="Project A test Forta chain"
-          description="Simple mode"
-          l2ChainList={['eth', 'op', 'zora']}
-          l1ChainList={['eth']}
-          status="active"
-        />
+        {projectLists.map((proj) => (
+          <ProjectItem
+            key={`project-${proj.configJson.name}`}
+            name={`${proj.configJson.name}`}
+            description={`${proj.configJson.description}`}
+            l2ChainList={['eth', 'op', 'zora']}
+            l1ChainList={['eth']}
+            status="active"
+            lastUsedDate={formatTimestamp(proj.configJson.lastedActive)}
+          />
+        ))}
       </div>
     </div>
   );

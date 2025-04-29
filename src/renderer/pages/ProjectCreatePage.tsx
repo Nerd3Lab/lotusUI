@@ -3,22 +3,81 @@ import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/utility/Button';
 import { Icon } from '@iconify/react';
 import Input from '../components/utility/Input';
+import { useSuiVersion } from '@/renderer/hooks/useSuiversion';
+import { useAppDispatch } from '@/renderer/states/hooks';
+import { ProjectSlide } from '@/renderer/states/project/reducer';
+import { useProjectList } from '@/renderer/hooks/useProjectList';
 
 function ProjectCreate() {
   const navigate = useNavigate();
   const [name, setName] = useState<string>('');
-  const [error, setError] = useState({ projectName: '' });
+  const [description, setDescription] = useState<string>('');
+  const [error, setError] = useState({ name: '' });
   const [isFullNode, setIsFullNode] = useState<boolean>(false);
   const [epochDuration, setEpochDuration] = useState<string>('60');
   const [suiVersion, setSuiVersion] = useState<string>('Testnet-v1.47.0');
 
-  const onSubmit = () => {
-    if (!name.trim()) {
-      setError({ projectName: 'Project name is required' });
+  const {
+    data: versionSui,
+    loading: versionSuiLoading,
+    error: versionSuiError,
+  } = useSuiVersion();
+  const {
+    data: projectLists,
+    loading: projectListsLoading,
+    error: projectListsError,
+  } = useProjectList();
+
+  const dispatch = useAppDispatch();
+
+  const onSubmit = async () => {
+    if (disabled) {
       return;
     }
-    console.log('submit', { name, isFullNode, epochDuration, suiVersion });
+
+    if (!name.trim()) {
+      setError({ name: 'Project name is required' });
+      return;
+    }
+
+    const result = await window.electron.project.createProject({
+      name: name.trim(),
+      fullnode: isFullNode,
+      epochDuration: parseInt(epochDuration, 10),
+      suiVersion,
+      isAutoReset: false,
+      description: description.trim(),
+    });
+
+    console.log({ result });
+
+    if (!result) {
+      return;
+    }
+
+    dispatch(ProjectSlide.actions.selectProject(result));
+
+    navigate('/loading');
   };
+
+  const onChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log({ projectLists });
+
+    setName(e.target.value.trim());
+
+    // check name
+    const existingProject = projectLists.find(
+      (project) => project.configJson.name === e.target.value.trim(),
+    );
+
+    if (existingProject) {
+      setError({ name: 'Project name already exists' });
+    } else {
+      setError({ name: '' });
+    }
+  };
+
+  const disabled = Boolean(error.name || !name);
 
   return (
     <div className="w-full flex flex-col gap-6 max-w-xl">
@@ -38,13 +97,21 @@ function ProjectCreate() {
         label="Project name"
         required
         value={name}
-        onChange={(e) => {
-          setName(e.target.value);
-          setError({ projectName: '' });
-        }}
+        onChange={onChangeName}
         placeholder="Type your project name"
-        error={error.projectName}
+        error={error.name}
       />
+
+      <Input
+        label="Description"
+        required
+        value={description}
+        onChange={(e) => {
+          setDescription(e.target.value);
+        }}
+        placeholder="Type your description of project"
+      />
+      {/*
       <div className="flex items-center justify-between">
         <label className="text-gray-800 font-medium">Node config</label>
         <div className="flex items-center gap-2">
@@ -63,7 +130,7 @@ function ProjectCreate() {
             ></div>
           </label>
         </div>
-      </div>
+      </div> */}
 
       {/* Epoch Duration */}
       <div>
@@ -88,13 +155,13 @@ function ProjectCreate() {
         value={suiVersion}
         onChange={(e) => setSuiVersion(e.target.value)}
       />
-      <div className="flex gap-4">
+      {/* <div className="flex gap-4">
         <div className="flex flex-col border rounded-2xl px-6 py-5 cursor-pointer hover:border-cyan-500 transition-all">
           <Icon
             icon="iconamoon:file-add-duotone"
             className="text-3xl text-cyan-500 mb-2"
           />
-          <b className="font-semibold text-gray-800">Quick start</b>
+          <b className="font-semibold text-gray-800">Fullnode</b>
           <p className="text-gray-600 text-sm">
             Spin up a demo chain in seconds
           </p>
@@ -109,11 +176,13 @@ function ProjectCreate() {
             Spin up a demo chain in seconds
           </p>
         </div>
-      </div>
+      </div> */}
 
       {/* Submit Button */}
       <div className="flex justify-end">
-        <Button onClick={onSubmit}>Create project →</Button>
+        <Button onClick={onSubmit} disabled={disabled}>
+          Create project →
+        </Button>
       </div>
     </div>
   );
