@@ -2,7 +2,7 @@ import { BrowserWindow } from 'electron';
 import { AppUpdater } from 'electron-updater';
 
 export class ParentService {
-  window: BrowserWindow | null = null;
+  window: BrowserWindow | undefined = undefined;
   appUpdater: AppUpdater;
 
   constructor(window: BrowserWindow, appUpdater: AppUpdater) {

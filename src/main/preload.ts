@@ -3,7 +3,7 @@
 import { ProjectCreatePayload, ProjectInterface } from '@/main/types/index';
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'ipc-example';
+export type Channels = 'node-run-log';
 
 const electronHandler = {
   ipcRenderer: {
@@ -45,6 +45,13 @@ const electronHandler = {
       >,
     removeProject: (name: string) =>
       ipcRenderer.invoke('project:remove', name) as Promise<boolean>,
+  },
+  node: {
+    runProject: (name: string) =>
+      ipcRenderer.invoke('node:runProject', name) as Promise<{
+        isSuccess: boolean;
+        error: string;
+      }>,
   },
 };
 

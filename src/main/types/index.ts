@@ -22,3 +22,10 @@ export interface ProjectCreatePayload {
   isAutoReset: boolean;
   description: string;
 }
+
+export interface NodeRunLogInterface {
+  message: string;
+  loading: boolean;
+  running: boolean;
+  error: boolean;
+}

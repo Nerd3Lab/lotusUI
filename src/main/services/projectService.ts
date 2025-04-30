@@ -71,6 +71,8 @@ export class ProjectService extends ParentService {
       }
     }
 
+    projectConfigs.sort((a, b) => b.configJson.lastedActive - a.configJson.lastedActive);
+
     return projectConfigs;
   }
 

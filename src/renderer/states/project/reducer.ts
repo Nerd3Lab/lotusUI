@@ -43,3 +43,7 @@ export const ProjectSlide = createSlice({
 });
 
 export default ProjectSlide.reducer;
+
+export const useProjectState = () => {
+  return useAppSelector((state) => state.project);
+};
