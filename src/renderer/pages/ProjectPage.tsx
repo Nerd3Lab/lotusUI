@@ -45,13 +45,9 @@ function ProjectPage() {
       <div className="flex flex-col gap-2 w-full max-h-[50vh] overflow-y-scroll overflow-x-hidden pr-4">
         {projectLists.map((proj) => (
           <ProjectItem
+            project={proj}
             key={`project-${proj.configJson.name}`}
-            name={`${proj.configJson.name}`}
-            description={`${proj.configJson.description}`}
-            l2ChainList={['eth', 'op', 'zora']}
-            l1ChainList={['eth']}
             status="active"
-            lastUsedDate={formatTimestamp(proj.configJson.lastedActive)}
           />
         ))}
       </div>

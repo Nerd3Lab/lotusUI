@@ -70,6 +70,27 @@ export class ProjectService extends ParentService {
     return projectConfigs;
   }
 
+  getProject(name: string): ProjectInterface | undefined {
+    const projectPath = appPath.projects;
+    const projectDir = `${projectPath}/${name}`;
+    const configPath = `${projectDir}/config.json`;
+
+    if (!fs.existsSync(projectDir)) {
+      return undefined;
+    }
+
+    const configJson = readJsonFile<ProjectJsonInterface>(configPath);
+
+    if (!configJson) {
+      return undefined;
+    }
+
+    return {
+      configJson,
+      path: projectDir,
+    };
+  }
+
   createProject(payload: ProjectCreatePayload): ProjectInterface | undefined {
     try {
       const projectPath = appPath.projects;
