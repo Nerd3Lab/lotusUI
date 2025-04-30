@@ -1,12 +1,12 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import Button from '../components/utility/Button';
-import { Icon } from '@iconify/react';
-import Input from '../components/utility/Input';
+import { useProjectList } from '@/renderer/hooks/useProjectList';
 import { useSuiVersion } from '@/renderer/hooks/useSuiversion';
 import { useAppDispatch } from '@/renderer/states/hooks';
 import { ProjectSlide } from '@/renderer/states/project/reducer';
-import { useProjectList } from '@/renderer/hooks/useProjectList';
+import { Icon } from '@iconify/react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import Button from '../components/utility/Button';
+import Input from '../components/utility/Input';
 
 function ProjectCreate() {
   const navigate = useNavigate();
@@ -79,9 +79,8 @@ function ProjectCreate() {
 
   const disabled = Boolean(error.name || !name);
 
-
   return (
-    <div className="w-full flex flex-col gap-6 max-w-xl">
+    <div className="w-full flex flex-col gap-6 max-w-xl mx-auto">
       <Link to="/">
         <div className="text-cyan-700 cursor-pointer flex items-center gap-2">
           <Icon icon="grommet-icons:form-previous-link" className="text-2xl" />
