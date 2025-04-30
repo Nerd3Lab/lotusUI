@@ -1,13 +1,12 @@
+import { Outlet } from 'react-router-dom';
 import MainLayout from './MainLayout';
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-const Layout = ({ children }: LayoutProps) => {
+const Layout = () => {
   return (
     <div className="w-full h-screen relative">
-      <MainLayout>{children}</MainLayout>
+      <MainLayout>
+        <Outlet />
+      </MainLayout>
     </div>
   );
 };
