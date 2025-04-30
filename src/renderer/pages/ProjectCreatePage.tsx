@@ -79,6 +79,7 @@ function ProjectCreate() {
 
   const disabled = Boolean(error.name || !name);
 
+
   return (
     <div className="w-full flex flex-col gap-6 max-w-xl">
       <Link to="/">

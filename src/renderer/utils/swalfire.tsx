@@ -1,0 +1,69 @@
+import { Icon } from '@iconify/react/dist/iconify.js';
+import Swal, { SweetAlertOptions } from 'sweetalert2';
+
+export type SwalFireOption = {
+  text?: string;
+  title?: string;
+  titleText?: string;
+  timer?: number;
+  timerProgressBar?: boolean;
+  icon?: string;
+  [key: string]: any;
+};
+
+export function swalFire() {
+  const success = (text: string, messages?: SweetAlertOptions) => {
+    return Swal.fire({
+      timer: 2000,
+      timerProgressBar: true,
+      text,
+      theme: 'dark',
+      confirmButtonColor: '#00b8db',
+      ...messages,
+    });
+  };
+  const error = (text: string, messages?: SweetAlertOptions) => {
+    return Swal.fire({
+      timer: 2000,
+      timerProgressBar: true,
+      text,
+      theme: 'dark',
+      confirmButtonColor: '#00b8db',
+      ...messages,
+    });
+  };
+  const warn = (text: string, messages?: SweetAlertOptions) => {
+    return Swal.fire({
+      timer: 2000,
+      timerProgressBar: true,
+      text,
+      theme: 'dark',
+      confirmButtonColor: '#00b8db',
+      ...messages,
+    });
+  };
+
+  // const question = (text: string, messages?: SweetAlertOptions) => {
+  //   return Swal.fire({
+  //     icon: 'question',
+  //     showCancelButton: true,
+  //     text,
+  //     ...messages,
+  //   });
+  // };
+
+  // const info = (text: string, messages?: SweetAlertOptions) => {
+  //   return Swal.fire({
+  //     text,
+  //     ...messages,
+  //   });
+  // };
+
+  return {
+    success,
+    error,
+    warn,
+    // question,
+    // info,
+  };
+}

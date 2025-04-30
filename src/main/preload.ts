@@ -35,6 +35,10 @@ const electronHandler = {
       >,
     getProjects: () =>
       ipcRenderer.invoke('project:getProjects') as Promise<ProjectInterface[]>,
+    getProject: (name: string) =>
+      ipcRenderer.invoke('project:get', name) as Promise<
+        ProjectInterface | undefined
+      >,
     createProject: (payload: ProjectCreatePayload) =>
       ipcRenderer.invoke('project:create', payload) as Promise<
         ProjectInterface | undefined

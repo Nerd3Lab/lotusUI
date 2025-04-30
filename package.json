@@ -1,24 +1,20 @@
 {
   "name": "lotusUI",
-  "description": "A foundation for scalable desktop apps",
+  "description": "Full local sui development user interface",
   "keywords": [
-    "electron",
-    "boilerplate",
-    "react",
+    "sui",
+    "smart contract",
+    "local development",
     "typescript",
-    "ts",
-    "sass",
-    "webpack",
-    "hot",
-    "reload"
+    "electron"
   ],
-  "homepage": "https://github.com/electron-react-boilerplate/electron-react-boilerplate#readme",
+  "homepage": "https://github.com/Nerd3Lab/lotusUI#readme",
   "bugs": {
-    "url": "https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues"
+    "url": "https://github.com/Nerd3Lab/lotusUI/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/electron-react-boilerplate/electron-react-boilerplate.git"
+    "url": "git+https://github.com/Nerd3Lab/lotusUI.git"
   },
   "license": "MIT",
   "author": {
@@ -84,7 +80,8 @@
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/.erb/mocks/fileMock.js",
       "\\.(css|less|sass|scss)$": "identity-obj-proxy",
-      "^@/(.*)$": "<rootDir>/src/$1"
+      "^@/(.*)$": "<rootDir>/src/$1",
+      "^@asset/(.*)$": "<rootDir>/assets/$1"
     },
     "setupFiles": [
       "./.erb/scripts/check-build-exists.ts"
@@ -190,18 +187,21 @@
     "webpack-merge": "^6.0.1"
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "LotusUI",
+    "appId": "org.nerd3lab.lotusui",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
+    "copyright": "Copyright by Nerd3lab",
     "files": [
       "dist",
       "node_modules",
       "package.json"
     ],
+    "afterSign": ".erb/scripts/notarize.js",
     "mac": {
-      "sign": ".erb/scripts/notarize.js",
-      "notarize": false,
+      "notarize": {
+        "teamId": "F946NPWBQ7"
+      },
       "target": {
         "target": "default",
         "arch": [
@@ -213,9 +213,11 @@
       "hardenedRuntime": true,
       "entitlements": "assets/entitlements.mac.plist",
       "entitlementsInherit": "assets/entitlements.mac.plist",
-      "gatekeeperAssess": false
+      "gatekeeperAssess": false,
+      "category": "public.app-category.developer-tools"
     },
     "dmg": {
+      "sign": false,
       "contents": [
         {
           "x": 130,
@@ -230,9 +232,10 @@
       ]
     },
     "win": {
-      "target": [
-        "nsis"
-      ]
+      "target": "zip",
+      "certificateFile": "private/Certificates.p12",
+      "certificatePassword": "",
+      "verifyUpdateCodeSignature": false
     },
     "linux": {
       "target": [
@@ -249,9 +252,7 @@
       "./assets/**"
     ],
     "publish": {
-      "provider": "github",
-      "owner": "electron-react-boilerplate",
-      "repo": "electron-react-boilerplate"
+      "provider": "github"
     }
   },
   "collective": {

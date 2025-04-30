@@ -1,4 +1,4 @@
-import SUI_LOGO from '../../../../assets/img/crypto/sui.svg';
+import SUI_LOGO from '@asset/img/crypto/sui.svg';
 
 interface ChainIconProps {
   size?: 'md' | 'lg' | 'xl';

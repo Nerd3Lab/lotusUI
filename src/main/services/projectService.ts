@@ -40,6 +40,10 @@ export class ProjectService extends ParentService {
     ipcMain.handle('project:remove', async (_, name: string) => {
       return this.removeProject(name);
     });
+
+    ipcMain.handle('project:get', async (_, name: string) => {
+      return this.getProject(name);
+    });
   }
 
   getProjects(): ProjectInterface[] {

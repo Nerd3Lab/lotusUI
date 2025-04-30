@@ -21,12 +21,14 @@ function ProjectPage() {
     error: projectListsError,
   } = useProjectList();
 
-  console.log({ projectLists });
+  const projects = projectLists.filter((pro) =>
+    pro.configJson.name.toLocaleLowerCase().includes(search.toLowerCase()),
+  );
 
   return (
     <div className="w-full flex flex-col gap-3 relative">
       <div>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-4">
           <h2 className="text-black font-semibold text-2xl">
             All Project ({projectLists.length})
           </h2>
@@ -42,8 +44,8 @@ function ProjectPage() {
         </p>
       </div>
       <SearchBox value={search} onChange={handleChange} />
-      <div className="flex flex-col gap-2 w-full max-h-[50vh] overflow-y-scroll overflow-x-hidden pr-4">
-        {projectLists.map((proj) => (
+      <div className="flex flex-col gap-2 w-full min-h-[40vh] max-h-[40vh] overflow-y-scroll overflow-x-hidden pr-4">
+        {projects.map((proj) => (
           <ProjectItem
             project={proj}
             key={`project-${proj.configJson.name}`}

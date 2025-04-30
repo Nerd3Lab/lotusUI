@@ -3,6 +3,10 @@ import ChainIcon from '../utility/ChainIcon';
 import { StatusBadge } from '../utility/StatusBadge';
 import { ProjectInterface } from '@/main/types/index';
 import { formatTimestamp } from '@/renderer/utils/index';
+import { useNavigate } from 'react-router-dom';
+import { swalFire } from '@/renderer/utils/swalfire';
+import { useAppDispatch } from '@/renderer/states/hooks';
+import { ProjectSlide } from '@/renderer/states/project/reducer';
 
 interface ProjectItemProps {
   status: 'active' | 'inactive';
@@ -10,8 +14,29 @@ interface ProjectItemProps {
 }
 
 const ProjectItem = ({ status, project }: ProjectItemProps) => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  const onClick = async () => {
+    const result = await window.electron.project.getProject(
+      project.configJson.name,
+    );
+
+    if (!result) {
+      swalFire().error('Project not found', {
+        icon: 'error',
+      });
+      return;
+    }
+
+    dispatch(ProjectSlide.actions.selectProject(result));
+
+    navigate('/loading');
+  };
+
   return (
     <div
+      onClick={onClick}
       className="w-full cursor-pointer rounded-xl flex flex-col gap-2 border border-gray-200 p-4
     transition-transform duration-300 hover:translate-x-2 hover:opacity-80 bg-white will-change-transform"
     >

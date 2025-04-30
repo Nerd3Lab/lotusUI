@@ -69,3 +69,31 @@ body {
   background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(12px);
 }
+
+.bg-gradient {
+  background:
+    linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 100%),
+    linear-gradient(
+      195deg,
+      #00001b -0.86%,
+      #6b1e60 35.63%,
+      #e540ad 64.16%,
+      #41eff9 96.43%
+    );
+}
+
+.animate-rotate {
+  animation: rotate 5s infinite;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: translateX(0deg);
+  }
+}

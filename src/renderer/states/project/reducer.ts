@@ -2,7 +2,9 @@ import { createSlice } from '@reduxjs/toolkit';
 import { useAppSelector } from '../hooks';
 import { ProjectInterface, ProjectJsonInterface } from '@/main/types/index';
 
-interface ProjectState extends ProjectInterface {}
+interface ProjectState extends ProjectInterface {
+  status: 'INACTIVE' | 'LOADING' | 'ERROR' | 'ACTIVE';
+}
 
 const initialState: ProjectState = {
   configJson: {
@@ -16,6 +18,7 @@ const initialState: ProjectState = {
     description: '',
   },
   path: '',
+  status: 'INACTIVE',
 };
 
 export const ProjectSlide = createSlice({
@@ -33,6 +36,8 @@ export const ProjectSlide = createSlice({
       state.configJson.createdAt = payload.configJson.createdAt;
       state.configJson.lastedActive = payload.configJson.lastedActive;
       state.configJson.description = payload.configJson.description;
+
+      state.status = 'LOADING';
     },
   },
 });
