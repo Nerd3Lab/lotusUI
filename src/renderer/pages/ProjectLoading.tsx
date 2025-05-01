@@ -1,5 +1,7 @@
 import LoadingDots from '@/renderer/components/utility/LoadingDots';
 import LoadingImg from '@asset/img/loadingImg.png';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function ProjectLoading() {
   const searchParams = new URLSearchParams(window.location.hash.split('?')[1]);
@@ -8,6 +10,11 @@ function ProjectLoading() {
   const isFullNode = searchParams.get('isFullNode') === 'true';
   const epochDuration = searchParams.get('epochDuration');
   const suiVersion = searchParams.get('suiVersion');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    navigate('/dashboard/account');
+  });
 
   console.log(window.location);
 
@@ -18,7 +25,6 @@ function ProjectLoading() {
     epochDuration,
     suiVersion,
   });
-
   return (
     <div className="h-full flex justify-center items-center">
       <div className="flex flex-col items-center">

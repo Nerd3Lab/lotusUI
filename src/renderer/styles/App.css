@@ -8,6 +8,7 @@ body {
   width: 100vw;
   user-select: none;
   -webkit-app-region: no-drag;
+  background-color: #FAFAFA;
 }
 
 * {

@@ -1,21 +1,12 @@
 import { Icon } from '@iconify/react';
-import styled from 'styled-components';
 import Swal from 'sweetalert2';
 
-interface Props extends SimpleComponent {
+interface CopyTextProps {
   value: string;
   size?: string;
 }
 
-const CopyTextWrapper = styled.div`
-  .icon-hover {
-    &:hover {
-      color: var(--color-brand-400);
-    }
-  }
-`;
-
-function CopyText(props: Props) {
+function CopyText(props: CopyTextProps) {
   const classNameString = props.size ? props.size : 'text-xl';
 
   const copyText = async (e: any) => {
@@ -34,12 +25,12 @@ function CopyText(props: Props) {
   };
 
   return (
-    <CopyTextWrapper onClick={copyText}>
+    <div onClick={copyText} className="hover:text-rose-500">
       <Icon
         icon="ph:copy-duotone"
         className={`cursor-pointer text-gray-400 icon-hover ${classNameString}`}
       />
-    </CopyTextWrapper>
+    </div>
   );
 }
 

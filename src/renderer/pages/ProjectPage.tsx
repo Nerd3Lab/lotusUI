@@ -1,11 +1,10 @@
+import { useProjectList } from '@/renderer/hooks/useProjectList';
 import { Icon } from '@iconify/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProjectItem from '../components/project/ProjectItem';
 import Button from '../components/utility/Button';
 import SearchBox from '../components/utility/SearchBox';
-import { useProjectList } from '@/renderer/hooks/useProjectList';
-import { formatTimestamp } from '@/renderer/utils/index';
 
 function ProjectPage() {
   const navigate = useNavigate();
