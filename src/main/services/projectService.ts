@@ -1,3 +1,4 @@
+import { NodeService } from '@/main/services/nodeService';
 import { ParentService } from '@/main/services/parentService';
 import {
   ProjectCreatePayload,
@@ -12,9 +13,15 @@ import { AppUpdater } from 'electron-updater';
 import fs from 'fs';
 
 export class ProjectService extends ParentService {
+  private nodeService?: NodeService;
+
   constructor(window: BrowserWindow, appUpdater: AppUpdater) {
     super(window, appUpdater);
     this.registerEvents();
+  }
+
+  setNodeService(nodeService: NodeService) {
+    this.nodeService = nodeService;
   }
 
   registerEvents() {
@@ -71,7 +78,9 @@ export class ProjectService extends ParentService {
       }
     }
 
-    projectConfigs.sort((a, b) => b.configJson.lastedActive - a.configJson.lastedActive);
+    projectConfigs.sort(
+      (a, b) => b.configJson.lastedActive - a.configJson.lastedActive,
+    );
 
     return projectConfigs;
   }
@@ -124,7 +133,7 @@ export class ProjectService extends ParentService {
         ),
       );
 
-      fs.mkdirSync(`${projectDir}/data`, { recursive: true });
+      this.nodeService!.createSuiGenesis(payload.name);
 
       return {
         configJson: {
@@ -150,6 +159,47 @@ export class ProjectService extends ParentService {
     fs.rmSync(projectDir, { recursive: true, force: true });
 
     return true;
+  }
+
+  updateProject(
+    name: string,
+    key: string,
+    value: any,
+  ): ProjectInterface | undefined {
+    try {
+      const projectPath = appPath.projects;
+      const projectDir = `${projectPath}/${name}`;
+      const configPath = `${projectDir}/config.json`;
+
+      if (!fs.existsSync(projectDir)) {
+        throw new Error('Project does not exist');
+      }
+
+      const configJson = readJsonFile<ProjectJsonInterface>(configPath);
+
+      if (!configJson) {
+        throw new Error('Invalid config file');
+      }
+
+      const updatedConfig = {
+        ...configJson,
+        [key]: value,
+        lastedActive: new Date().getTime(),
+      };
+
+      fs.writeFileSync(configPath, JSON.stringify(updatedConfig, null, 2));
+
+      return {
+        configJson: updatedConfig,
+        path: projectDir,
+      };
+    } catch (error) {
+      return undefined;
+    }
+  }
+
+  updateLastedActive(name: string): ProjectInterface | undefined {
+    return this.updateProject(name, 'lastedActive', new Date().getTime());
   }
 
   async getReleases() {

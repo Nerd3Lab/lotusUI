@@ -15,13 +15,9 @@ function ProjectCreate() {
   const [error, setError] = useState({ name: '' });
   const [isFullNode, setIsFullNode] = useState<boolean>(false);
   const [epochDuration, setEpochDuration] = useState<string>('60');
-  const [suiVersion, setSuiVersion] = useState<string>('Testnet-v1.47.0');
+  // const [suiVersion, setSuiVersion] = useState<string>('Testnet-v1.47.0');
 
-  const {
-    data: versionSui,
-    loading: versionSuiLoading,
-    error: versionSuiError,
-  } = useSuiVersion();
+
   const {
     data: projectLists,
     loading: projectListsLoading,
@@ -44,7 +40,6 @@ function ProjectCreate() {
       name: name.trim(),
       fullnode: isFullNode,
       epochDuration: parseInt(epochDuration, 10),
-      suiVersion,
       isAutoReset: false,
       description: description.trim(),
     });
@@ -63,7 +58,7 @@ function ProjectCreate() {
   const onChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log({ projectLists });
 
-    setName(e.target.value.trim());
+    setName(e.target.value.trim().replace(/ /g, ''));
 
     // check name
     const existingProject = projectLists.find(
@@ -150,12 +145,13 @@ function ProjectCreate() {
           />
         </div>
       </div>
-      <Input
+      {/* <Input
         label="Sui version"
         required
         value={suiVersion}
         onChange={(e) => setSuiVersion(e.target.value)}
-      />
+      /> */}
+
       {/* <div className="flex gap-4">
         <div className="flex flex-col border rounded-2xl px-6 py-5 cursor-pointer hover:border-cyan-500 transition-all">
           <Icon

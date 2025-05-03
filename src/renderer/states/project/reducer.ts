@@ -3,7 +3,11 @@ import { useAppSelector } from '../hooks';
 import { ProjectInterface, ProjectJsonInterface } from '@/main/types/index';
 
 interface ProjectState extends ProjectInterface {
-  status: 'INACTIVE' | 'LOADING' | 'ERROR' | 'ACTIVE';
+  status: {
+    loading: boolean;
+    running: boolean;
+    error: boolean;
+  };
 }
 
 const initialState: ProjectState = {
@@ -11,14 +15,17 @@ const initialState: ProjectState = {
     name: '',
     fullnode: false,
     epochDuration: 60,
-    suiVersion: '',
     isAutoReset: false,
     createdAt: 0,
     lastedActive: 0,
     description: '',
   },
   path: '',
-  status: 'INACTIVE',
+  status: {
+    loading: false,
+    running: false,
+    error: false,
+  },
 };
 
 export const ProjectSlide = createSlice({
@@ -31,13 +38,24 @@ export const ProjectSlide = createSlice({
       state.configJson.name = payload.configJson.name;
       state.configJson.fullnode = payload.configJson.fullnode;
       state.configJson.epochDuration = payload.configJson.epochDuration;
-      state.configJson.suiVersion = payload.configJson.suiVersion;
       state.configJson.isAutoReset = payload.configJson.isAutoReset;
       state.configJson.createdAt = payload.configJson.createdAt;
       state.configJson.lastedActive = payload.configJson.lastedActive;
       state.configJson.description = payload.configJson.description;
 
-      state.status = 'LOADING';
+      state.status.loading = false;
+      state.status.running = false;
+      state.status.error = false;
+    },
+    setStatus: (
+      state,
+      {
+        payload,
+      }: { payload: { loading?: boolean; running?: boolean; error?: boolean } },
+    ) => {
+      if (payload.loading !== undefined) state.status.loading = payload.loading;
+      if (payload.running !== undefined) state.status.running = payload.running;
+      if (payload.error !== undefined) state.status.error = payload.error;
     },
   },
 });

@@ -9,6 +9,7 @@ export const appPath = {
   root,
   sui: path.join(root, 'sui'),
   projects: path.join(root, 'projects'),
+  rust: path.join(root, 'rust'),
 };
 
 export const suiRepository = {

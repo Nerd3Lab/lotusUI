@@ -54,7 +54,8 @@ const ProjectItem = ({ status, project }: ProjectItemProps) => {
       </div>
       <div className="flex w-full items-center justify-between">
         <p className="text-cyan-800 text-sm">
-          Version : {project.configJson.suiVersion}
+          {/* Version : {project.configJson.suiVersion} */}
+          Created at: {formatTimestamp(project.configJson.createdAt)}
         </p>
 
         <p className="text-gray-600 text-sm">

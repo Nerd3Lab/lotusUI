@@ -1,6 +1,10 @@
 import { NodeRunLogInterface } from '@/main/types/index';
 import LoadingDots from '@/renderer/components/utility/LoadingDots';
-import { useProjectState } from '@/renderer/states/project/reducer';
+import { useAppDispatch } from '@/renderer/states/hooks';
+import {
+  ProjectSlide,
+  useProjectState,
+} from '@/renderer/states/project/reducer';
 import LoadingImg from '@asset/img/loadingImg.png';
 import { Icon } from '@iconify/react';
 import { useEffect, useState } from 'react';
@@ -13,6 +17,8 @@ function ProjectLoading() {
     'Checking for existing project...',
   ]);
   const [isError, setisError] = useState(false);
+  const [isSuiNotInstalled, setIsSuiNotInstalled] = useState(false);
+  const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
 
@@ -41,6 +47,13 @@ function ProjectLoading() {
       project.configJson.name,
     );
 
+    if (result && result.isSuiNotInstalled) {
+      addLogs(result.error);
+      setisError(true);
+      setIsSuiNotInstalled(true);
+      return;
+    }
+
     if (result && result.error) {
       addLogs(result.error);
       setisError(true);
@@ -61,10 +74,20 @@ function ProjectLoading() {
         error,
       } = message as NodeRunLogInterface;
 
-      console.log({ messageLog });
+      dispatch(ProjectSlide.actions.setStatus({ loading, running, error }));
 
       addLogs(messageLog);
     });
+  }, []);
+
+  // useEffect(() => {
+  //   if (project.status.running) {
+  //     navigate(`/dashboard/account`);
+  //   }
+  // }, [project.status.running]);
+
+  useEffect(() => {
+    navigate(`/dashboard/account`);
   }, []);
 
   return (
@@ -77,13 +100,35 @@ function ProjectLoading() {
         <div className="text-2xl font-semibold text-black flex gap-2">
           Just a moment <LoadingDots />
         </div>
-        <p className="text-[#535862] my-2">We are building for you </p>
+        {!isError && (
+          <p className="text-[#535862] my-2">We are building for you </p>
+        )}
 
-        <p className="text-cyan-500 my-2"> {logs[logs.length - 1] || ''}</p>
+        <p className="text-cyan-500"> {logs[logs.length - 1] || ''}</p>
+
+        {isSuiNotInstalled && (
+          <div className="flex flex-col items-center my-2">
+            <p className="text-pink-300 text-lg">
+              Sui is not installed on your system
+            </p>
+            <a
+              href="https://docs.sui.io/guides/developer/getting-started/sui-install"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-pink-500 hover:text-pink-600 text-lg flex items-center gap-1"
+            >
+              <Icon icon="mdi:open-in-new" className="text-lg" />
+              Please install sui see this
+            </a>
+          </div>
+        )}
 
         {isError && (
-          <Link to="/" className="text-red-500 text-lg flex items-center gap-2">
-            <Icon icon="mdi:home" className="text-lg" /> Back to home
+          <Link
+            to="/"
+            className="text-black hover:text-gray-500 text-lg flex items-center gap-2"
+          >
+            <Icon icon="mdi:home" className="text-lg" /> Home
           </Link>
         )}
       </div>

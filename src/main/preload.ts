@@ -51,6 +51,7 @@ const electronHandler = {
       ipcRenderer.invoke('node:runProject', name) as Promise<{
         isSuccess: boolean;
         error: string;
+        isSuiNotInstalled?: boolean;
       }>,
   },
 };

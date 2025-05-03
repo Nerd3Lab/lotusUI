@@ -7,7 +7,6 @@ export interface ProjectJsonInterface {
   name: string;
   fullnode: boolean;
   epochDuration: number;
-  suiVersion: string;
   isAutoReset: boolean;
   createdAt: number;
   lastedActive: number;
@@ -18,7 +17,6 @@ export interface ProjectCreatePayload {
   name: string;
   fullnode: boolean;
   epochDuration: number;
-  suiVersion: string;
   isAutoReset: boolean;
   description: string;
 }

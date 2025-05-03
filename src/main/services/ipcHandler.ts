@@ -9,6 +9,10 @@ export class IpcHandler {
 
   constructor(window: BrowserWindow, appUpdater: AppUpdater) {
     this.projectService = new ProjectService(window, appUpdater);
-    this.nodeService = new NodeService(window, appUpdater, this.projectService);
+    this.nodeService = new NodeService(window, appUpdater);
+
+    // Set circular references
+    this.projectService.setNodeService(this.nodeService);
+    this.nodeService.setProjectService(this.projectService);
   }
 }

@@ -1,24 +1,31 @@
 import { ParentService } from '@/main/services/parentService';
 import { ProjectService } from '@/main/services/projectService';
 import { appPath } from '@/main/utils/config';
-import { BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import { AppUpdater } from 'electron-updater';
 import path from 'path';
 import fs from 'fs';
-import { execSync } from 'child_process';
+import {
+  ChildProcessWithoutNullStreams,
+  exec,
+  execSync,
+  spawn,
+} from 'child_process';
 import https from 'https';
 import extract from 'extract-zip';
+import { ProjectInterface } from '@/main/types/index';
+
+let SUI_LOCAL_NODE_PROCESS: ChildProcessWithoutNullStreams | null = null;
 
 export class NodeService extends ParentService {
-  private projectService: ProjectService;
+  private projectService?: ProjectService;
 
-  constructor(
-    window: BrowserWindow,
-    appUpdater: AppUpdater,
-    projectService: ProjectService,
-  ) {
+  constructor(window: BrowserWindow, appUpdater: AppUpdater) {
     super(window, appUpdater);
     this.registerEvents();
+  }
+
+  setProjectService(projectService: ProjectService) {
     this.projectService = projectService;
   }
 
@@ -26,20 +33,22 @@ export class NodeService extends ParentService {
     ipcMain.handle('node:runProject', async (_, name: string) => {
       return this.runProject(name);
     });
+
+    ipcMain.handle('node:getSuiVersion', async () => {
+      return this.getSuiVersion();
+    });
+
+    app.on('before-quit', () => {
+      if (SUI_LOCAL_NODE_PROCESS) {
+        SUI_LOCAL_NODE_PROCESS.kill();
+        SUI_LOCAL_NODE_PROCESS = null;
+      }
+    });
   }
 
   async runProject(name: string) {
     try {
-      const project = this.projectService.getProject(name);
-
-      const releases = await this.projectService.getReleases();
-
-      if (!releases || releases.length === 0) {
-        return {
-          isSuccess: false,
-          error: 'No releases found',
-        };
-      }
+      const project = this.projectService!.getProject(name);
 
       if (!project) {
         {
@@ -50,19 +59,90 @@ export class NodeService extends ParentService {
         }
       }
 
-      const release = releases.find(
-        (r) => r.tag_name === project.configJson.suiVersion,
-      );
-      if (!release) {
+      const suiVersion = await this.getSuiVersion();
+
+      this.projectService!.updateLastedActive(name);
+
+      if (!suiVersion.isSuccess) {
         return {
           isSuccess: false,
-          error: `Release ${project.configJson.suiVersion} not found`,
+          error: suiVersion.error,
+          isSuiNotInstalled: true,
         };
       }
 
-      // await this.downloadSui(project.configJson.suiVersion);
+      if (SUI_LOCAL_NODE_PROCESS) {
+        if (this.isActive()) {
+          this.window?.webContents.send('node-run-log', {
+            message: 'Sui local node is already running',
+            loading: false,
+            running: true,
+            error: false,
+          });
+          return;
+        }
+      }
 
-      const suiList = this.getAvailableSuiVersion();
+      const env = { RUST_LOG: 'off,sui_node=info' };
+      const args = ['start', '--with-faucet', '--force-regenesis'];
+
+      try {
+        SUI_LOCAL_NODE_PROCESS = spawn('sui', args, {
+          env: {
+            ...process.env,
+            ...env,
+          },
+        });
+
+        SUI_LOCAL_NODE_PROCESS.stdout.on('data', async (data) => {
+          const message = data.toString();
+          // console.log('stdout', { message });
+          if (this.isActive()) {
+            this.window?.webContents.send('node-run-log', {
+              message,
+              loading: false,
+              running: true,
+              error: false,
+            });
+          }
+
+          const suiNodeStatus = await this.getSuiNodeStatus();
+
+          if (
+            suiNodeStatus &&
+            suiNodeStatus.isSuccess &&
+            suiNodeStatus.isRunning
+          ) {
+            this.window?.webContents.send('node-run-log', {
+              message: 'Sui local node is already running',
+              loading: false,
+              running: true,
+              error: false,
+            });
+          }
+        });
+
+        SUI_LOCAL_NODE_PROCESS.stderr.on('data', (data) => {
+          const message = data.toString();
+          // console.log('stderr', { message });
+          if (this.isActive()) {
+            this.window?.webContents.send('node-run-log', {
+              message,
+              loading: false,
+              running: true,
+              error: true,
+            });
+          }
+        });
+      } catch (error) {
+        return {
+          isSuccess: false,
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Unknown error occurred on spawn',
+        };
+      }
 
       return {
         isSuccess: true,
@@ -77,139 +157,159 @@ export class NodeService extends ParentService {
     }
   }
 
-  async downloadSui(version: string) {
-    const SuiPath = appPath.sui;
+  async stopProject() {
+    if (SUI_LOCAL_NODE_PROCESS) {
+      SUI_LOCAL_NODE_PROCESS.kill();
+      SUI_LOCAL_NODE_PROCESS = null;
 
-    const { url, filename } = getDownloadUrl(version);
-    const suiVersionPathdir = path.join(SuiPath, version);
-
-    if (!fs.existsSync(suiVersionPathdir)) {
-      fs.mkdirSync(suiVersionPathdir, { recursive: true });
-    }
-
-    const downloadZipPath = path.join(suiVersionPathdir, filename);
-
-    return new Promise<void>((resolve, reject) => {
-      const file = fs.createWriteStream(downloadZipPath);
-
-      function followRedirect(response: any, window: BrowserWindow) {
-        if (response.statusCode === 302 || response.statusCode === 301) {
-          https.get(response.headers.location, (res) =>
-            followRedirect(res, window),
-          );
-        } else if (response.statusCode !== 200) {
-          reject(new Error(`Failed to download file: ${response.statusCode}`));
-        } else {
-          let downloadedBytes = 0;
-          const totalBytes = parseInt(response.headers['content-length'], 10);
-
-          response.on('data', (chunk: Buffer) => {
-            downloadedBytes += chunk.length;
-            const progress = (downloadedBytes / totalBytes) * 100;
-            // console.log(`Downloading: ${progress.toFixed(1)}%`);
-            // console.log('window', window);
-            if (window) {
-              window.webContents.send('node-run-log', {
-                message: `Downloading sui version ${version}: ${progress.toFixed(1)}%`,
-                loading: true,
-                running: false,
-                error: false,
-              });
-            }
-          });
-
-          response.pipe(file);
-
-          file.on('finish', async () => {
-            file.close();
-            console.log(`Downloaded: ${downloadZipPath}`);
-
-            if (window) {
-              window.webContents.send('node-run-log', {
-                message: 'Extracting files...',
-                loading: true,
-                running: false,
-                error: false,
-              });
-            }
-
-            try {
-              if (filename.endsWith('.zip')) {
-                await extract(downloadZipPath, { dir: suiVersionPathdir });
-              } else {
-                console.log(
-                  `tar -xzf "${downloadZipPath}" -C "${suiVersionPathdir}"`,
-                );
-                execSync(
-                  `tar -xzf "${downloadZipPath}" -C "${suiVersionPathdir}"`,
-                );
-              }
-
-              // Delete the zip file after extraction
-              fs.unlinkSync(downloadZipPath);
-
-              if (window) {
-                window.webContents.send('node-run-log', {
-                  message: 'Download and extraction complete!',
-                  loading: false,
-                  running: false,
-                  error: false,
-                });
-              }
-              resolve();
-            } catch (error) {
-              if (window) {
-                window.webContents.send('node-run-log', {
-                  message:
-                    error instanceof Error
-                      ? error.message
-                      : 'Extraction failed',
-                  loading: false,
-                  running: false,
-                  error: true,
-                });
-              }
-              reject(error);
-            }
-          });
-        }
-      }
-
-      https
-        .get(url, (response) => followRedirect(response, this.window!))
-        .on('error', (error) => {
-          console.log('Download error:', error);
-          reject(error);
+      if (this.isActive()) {
+        this.window?.webContents.send('node-run-log', {
+          message: 'Sui local node stopped',
+          loading: false,
+          running: false,
+          error: false,
         });
+      }
+    } else {
+      console.log('Sui local node is not running');
+
+      if (this.isActive()) {
+        this.window?.webContents.send('node-run-log', {
+          message: 'Sui local node is not running',
+          loading: false,
+          running: false,
+          error: true,
+        });
+      }
+    }
+  }
+
+  async getSuiVersion(): Promise<{
+    isSuccess: boolean;
+    error?: string;
+    version?: string;
+  }> {
+    return new Promise((resolve) => {
+      exec('sui -V', (error, stdout, stderr) => {
+        if (error) {
+          console.log('Error checking sui version:', error);
+          resolve({
+            isSuccess: false,
+            error: error.message,
+          });
+          return;
+        }
+
+        if (stderr) {
+          console.log('Stderr from sui version check:', stderr);
+          resolve({
+            isSuccess: false,
+            error: stderr,
+          });
+          return;
+        }
+
+        const version = stdout.trim();
+        resolve({
+          isSuccess: true,
+          version,
+        });
+      });
     });
   }
 
-  async getAvailableSuiVersion() {
-    const SuiPath = appPath.sui;
+  async createSuiGenesis(name: string, reForce = false) {
+    const projectPath = appPath.projects;
+    const projectDir = `${projectPath}/${name}`;
+
+    try {
+      if (!fs.existsSync(projectDir)) {
+        throw new Error('Project directory does not exist');
+      }
+
+      const dataDir = `${projectDir}/data`;
+
+      if (reForce && fs.existsSync(dataDir)) {
+        fs.rmSync(dataDir, { recursive: true, force: true });
+      }
+
+      fs.mkdirSync(dataDir, { recursive: true });
+
+      return new Promise((resolve) => {
+        console.log(`sui genesis --working-dir ${dataDir}`);
+        exec(
+          `cd '${dataDir}' && sui genesis --working-dir '${dataDir}'`,
+          (error, stdout, stderr) => {
+            if (error) {
+              console.log('Error creating sui genesis:', error);
+              resolve({
+                isSuccess: false,
+                error: error.message,
+              });
+              return;
+            }
+
+            if (stderr) {
+              console.log('Stderr from sui genesis:', stderr);
+              resolve({
+                isSuccess: false,
+                error: stderr,
+              });
+              return;
+            }
+
+            resolve({
+              isSuccess: true,
+            });
+          },
+        );
+      });
+    } catch (error) {
+      return {
+        isSuccess: false,
+        error:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+      };
+    }
   }
-}
 
-function getDownloadUrl(version: string): { url: string; filename: string } {
-  const DOWNLOAD_BASE_URL = `https://github.com/MystenLabs/sui/releases/download/${version}`;
-  const platform = process.platform;
-  const arch = process.arch;
+  async getSuiNodeStatus() {
+    if (SUI_LOCAL_NODE_PROCESS) {
+      try {
+        const response = await fetch('http://127.0.0.1:9000', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'sui_getTotalTransactionBlocks',
+            params: [],
+          }),
+        });
 
-  if (platform === 'win32') {
-    return {
-      url: `${DOWNLOAD_BASE_URL}/sui-${version}-windows-x86_64.tgz`,
-      filename: `sui-${version}-windows-x86_64.tgz`,
-    };
-  } else if (platform === 'darwin') {
-    return {
-      url: `${DOWNLOAD_BASE_URL}/sui-${version}-macos-x86_64.tgz`,
-      filename: `sui-${version}-macos-x86_64.tgz`,
-    };
-  } else if (platform === 'linux') {
-    return {
-      url: `${DOWNLOAD_BASE_URL}/sui-${version}-ubuntu-x86_64.tgz`,
-      filename: `sui-${version}-ubuntu-x86_64.tgz`,
-    };
-  } else {
-    throw new Error('Unsupported OS');
+        const data = await response.json();
+
+        if (data.result !== undefined) {
+          return {
+            isSuccess: true,
+            isRunning: true,
+            transactionBlocks: data.result,
+          };
+        }
+
+        return {
+          isSuccess: true,
+          isRunning: false,
+        };
+      } catch (error) {
+        return {
+          isSuccess: false,
+          error:
+            error instanceof Error ? error.message : 'Unknown error occurred',
+        };
+      }
+    }
   }
 }
