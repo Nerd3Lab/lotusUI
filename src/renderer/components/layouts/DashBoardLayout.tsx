@@ -1,8 +1,10 @@
 import { Outlet } from 'react-router-dom';
+import NavBar from '../dashboard/Navbar';
 
 const DashBoardLayout = () => {
   return (
-    <div className="w-full h-screen relative">
+    <div>
+      <NavBar />
       <Outlet />
     </div>
   );

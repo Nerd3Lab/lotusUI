@@ -1,12 +1,11 @@
-import { Icon } from '@iconify/react';
-import ChainIcon from '../utility/ChainIcon';
-import { StatusBadge } from '../utility/StatusBadge';
 import { ProjectInterface } from '@/main/types/index';
-import { formatTimestamp } from '@/renderer/utils/index';
-import { useNavigate } from 'react-router-dom';
-import { swalFire } from '@/renderer/utils/swalfire';
 import { useAppDispatch } from '@/renderer/states/hooks';
 import { ProjectSlide } from '@/renderer/states/project/reducer';
+import { formatTimestamp } from '@/renderer/utils/index';
+import { swalFire } from '@/renderer/utils/swalfire';
+import { useNavigate } from 'react-router-dom';
+import ChainIcon from '../utility/ChainIcon';
+import { StatusBadge } from '../utility/StatusBadge';
 
 interface ProjectItemProps {
   status: 'active' | 'inactive';
