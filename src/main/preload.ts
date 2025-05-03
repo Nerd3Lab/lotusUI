@@ -53,6 +53,7 @@ const electronHandler = {
         error: string;
         isSuiNotInstalled?: boolean;
       }>,
+    stopProject: () => ipcRenderer.invoke('node:stopProject') as Promise<void>,
   },
 };
 

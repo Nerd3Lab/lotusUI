@@ -6,6 +6,7 @@ import Avatar from '@asset/img/avatar.png';
 import { Icon } from '@iconify/react';
 import MnemonicDisplay from '../components/dashboard/account/MnemonicDisplay';
 import { formatBalanceWei } from '../utils';
+import Breadcrumb from '@/renderer/components/dashboard/Breadcrumb';
 
 export interface Account {
   index: number;
@@ -39,7 +40,7 @@ export const accounts: Account[] = [
 function AccountDashboardPage() {
   return (
     <div className="mx-8">
-      <Breadcrumb />
+      <Breadcrumb label="Accounts" />
       <div className="mt-3 flex justify-between items-center">
         <div className="text-2xl font-semibold text-gray-900">Accounts</div>
         <Button className="flex gap-1 items-center">
@@ -100,17 +101,5 @@ function AccountDashboardPage() {
     </div>
   );
 }
-
-const Breadcrumb = () => (
-  <div className="flex gap-1 items-center">
-    <div className="p-1">
-      <Icon icon="lsicon:home-outline" className="w-5 h-5 text-gray-500" />
-    </div>
-    <div className="p-1">
-      <Icon icon="line-md:chevron-right" className="w-4 h-4 text-gray-300" />
-    </div>
-    <div className="text-sm font-semibold text-gray-700">Accounts</div>
-  </div>
-);
 
 export default AccountDashboardPage;

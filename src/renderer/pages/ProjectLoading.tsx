@@ -80,15 +80,11 @@ function ProjectLoading() {
     });
   }, []);
 
-  // useEffect(() => {
-  //   if (project.status.running) {
-  //     navigate(`/dashboard/account`);
-  //   }
-  // }, [project.status.running]);
-
   useEffect(() => {
-    navigate(`/dashboard/account`);
-  }, []);
+    if (project.status.running) {
+      navigate(`/dashboard/account`);
+    }
+  }, [project.status.running]);
 
   return (
     <div className="h-full flex justify-center items-center">

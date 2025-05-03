@@ -38,6 +38,10 @@ export class NodeService extends ParentService {
       return this.getSuiVersion();
     });
 
+    ipcMain.handle('node:stopProject', async () => {
+      return this.stopProject();
+    });
+
     app.on('before-quit', () => {
       if (SUI_LOCAL_NODE_PROCESS) {
         SUI_LOCAL_NODE_PROCESS.kill();

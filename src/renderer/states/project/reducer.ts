@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { useAppSelector } from '../hooks';
 import { ProjectInterface, ProjectJsonInterface } from '@/main/types/index';
+import { revertAllRedux } from '@/renderer/states/action';
 
 interface ProjectState extends ProjectInterface {
   status: {
@@ -31,6 +32,8 @@ const initialState: ProjectState = {
 export const ProjectSlide = createSlice({
   name: 'project',
   initialState,
+  extraReducers: (builder) =>
+    builder.addCase(revertAllRedux, () => initialState),
   reducers: {
     selectProject: (state, { payload }: { payload: ProjectInterface }) => {
       state.path = payload.path;
