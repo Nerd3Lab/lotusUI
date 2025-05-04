@@ -4,7 +4,9 @@ import COIN_SWAP from '@asset/icons/coin-swap.svg';
 import KEY from '@asset/icons/key.svg';
 import Avatar from '@asset/img/avatar.png';
 import { Icon } from '@iconify/react';
+import { useState } from 'react';
 import MnemonicDisplay from '../components/dashboard/account/MnemonicDisplay';
+import AddAccountModal from '../components/Modal/AddAccountModal';
 import { formatBalanceWei } from '../utils';
 
 export interface Account {
@@ -37,12 +39,16 @@ export const accounts: Account[] = [
 ];
 
 function AccountDashboardPage() {
+  const [showModal, setShowModal] = useState(false);
   return (
-    <div className="mx-8">
+    <>
       <Breadcrumb />
       <div className="mt-3 flex justify-between items-center">
         <div className="text-2xl font-semibold text-gray-900">Accounts</div>
-        <Button className="flex gap-1 items-center">
+        <Button
+          className="flex gap-1 items-center"
+          onClick={() => setShowModal(true)}
+        >
           <Icon icon="material-symbols:circle-outline" className="w-5 h-5" />
           <span>Add Account</span>
         </Button>
@@ -97,7 +103,8 @@ function AccountDashboardPage() {
           ))}
         </tbody>
       </table>
-    </div>
+      <AddAccountModal isOpen={showModal} onClose={() => setShowModal(false)} />
+    </>
   );
 }
 
