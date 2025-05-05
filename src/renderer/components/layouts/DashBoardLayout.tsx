@@ -5,7 +5,9 @@ const DashBoardLayout = () => {
   return (
     <div>
       <NavBar />
-      <Outlet />
+      <div className="mx-8">
+        <Outlet />
+      </div>
     </div>
   );
 };

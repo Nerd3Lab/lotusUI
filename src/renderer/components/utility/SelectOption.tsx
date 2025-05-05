@@ -71,7 +71,7 @@ export default function Select({
     <div className={`relative ${className}`} ref={selectRef}>
       {label && (
         <label className="block text-gray-700 font-medium mb-1 text-sm">
-          {label} {required && <span className="text-red-500">*</span>}
+          {label} {required && <span className="text-[#00C3D1]">*</span>}
         </label>
       )}
 
