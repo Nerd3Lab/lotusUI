@@ -1,6 +1,6 @@
 import { NodeRunLogInterface } from '@/main/types/index';
 import LoadingDots from '@/renderer/components/utility/LoadingDots';
-import { useAppDispatch } from '@/renderer/states/hooks';
+import { useAppDispatch, useAppSelector } from '@/renderer/states/hooks';
 import {
   ProjectSlide,
   useProjectState,
@@ -13,22 +13,17 @@ import { Link, useNavigate } from 'react-router-dom';
 function ProjectLoading() {
   const project = useProjectState();
 
-  const [logs, setLogs] = useState<string[]>([
-    'Checking for existing project...',
-  ]);
   const [isError, setisError] = useState(false);
   const [isSuiNotInstalled, setIsSuiNotInstalled] = useState(false);
   const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
+  const logs = useAppSelector((state) => state.project.logs);
 
-  const addLogs = (log: string) => {
-    setLogs((prevLogs) => [...prevLogs, log]);
-  };
 
   const checkingProject = async () => {
     if (!project?.configJson.name) {
-      addLogs(`Not found project`);
+      dispatch(ProjectSlide.actions.addLog(`Not found project`));
       setisError(true);
       navigate('/');
       return;
@@ -38,7 +33,7 @@ function ProjectLoading() {
     );
 
     if (!projectGet) {
-      addLogs(`Project : ${project.configJson.name} not found`);
+      dispatch(ProjectSlide.actions.addLog(`Project : ${project.configJson.name} not found`));
       setisError(true);
       return;
     }
@@ -48,36 +43,23 @@ function ProjectLoading() {
     );
 
     if (result && result.isSuiNotInstalled) {
-      addLogs(result.error);
+      dispatch(ProjectSlide.actions.addLog(result.error));
       setisError(true);
       setIsSuiNotInstalled(true);
       return;
     }
 
     if (result && result.error) {
-      addLogs(result.error);
+      dispatch(ProjectSlide.actions.addLog(result.error));
       setisError(true);
       return;
     }
 
-    addLogs('Project found, loading Sui local development...');
+    dispatch(ProjectSlide.actions.addLog('Project found, loading Sui local development...'));
   };
 
   useEffect(() => {
     checkingProject();
-
-    window.electron.ipcRenderer.on('node-run-log', (message) => {
-      const {
-        message: messageLog,
-        loading,
-        running,
-        error,
-      } = message as NodeRunLogInterface;
-
-      dispatch(ProjectSlide.actions.setStatus({ loading, running, error }));
-
-      addLogs(messageLog);
-    });
   }, []);
 
   useEffect(() => {

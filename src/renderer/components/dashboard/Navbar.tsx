@@ -1,8 +1,10 @@
 import SUI from '@asset/img/crypto/sui-white.svg';
 import LOGO from '@asset/img/logo-white.svg';
 import NavLinkItem from './NavLinkItem'; // ปรับ path ให้ถูก
+import { useProjectState } from '@/renderer/states/project/reducer';
 
 const NavBar = () => {
+  const project = useProjectState();
   return (
     <nav className="p-4 mb-5">
       <div className="bg-[#0F0F10] text-white px-10 py-3 rounded-xl flex justify-between items-center">
@@ -21,20 +23,20 @@ const NavBar = () => {
         </div>
 
         <div className="flex items-center gap-6 text-sm">
-          <StatusItem label="Current Block" value="122" />
           <StatusItem
-            label="Hardfork"
+            label="Project"
             value={
               <span className="flex items-center gap-1">
                 <div className="w-5 h-5 rounded-full bg-[#6FBCF0]">
                   <img src={SUI} alt="" className="w-5 h-5" />
                 </div>
-                Sui Local
+                {project.configJson.name}
               </span>
             }
           />
-          <StatusItem label="Network ID" value="22222" />
-          <StatusItem label="RPC Server" value="Http://127.0.0.1:33333" />
+          <StatusItem label="Total TX Block" value={project.transactionBlocks} />
+          {/* <StatusItem label="Network ID" value="22222" /> */}
+          <StatusItem label="RPC Server" value="Http://127.0.0.1:9000" />
         </div>
       </div>
     </nav>

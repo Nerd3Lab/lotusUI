@@ -9,6 +9,8 @@ interface ProjectState extends ProjectInterface {
     running: boolean;
     error: boolean;
   };
+  logs: string[];
+  transactionBlocks: number;
 }
 
 const initialState: ProjectState = {
@@ -27,6 +29,8 @@ const initialState: ProjectState = {
     running: false,
     error: false,
   },
+  logs: [],
+  transactionBlocks: 0,
 };
 
 export const ProjectSlide = createSlice({
@@ -59,6 +63,12 @@ export const ProjectSlide = createSlice({
       if (payload.loading !== undefined) state.status.loading = payload.loading;
       if (payload.running !== undefined) state.status.running = payload.running;
       if (payload.error !== undefined) state.status.error = payload.error;
+    },
+    addLog: (state, { payload }: { payload: string }) => {
+      state.logs.push(payload);
+    },
+    setTransactionBlocks: (state, { payload }: { payload: number }) => {
+      state.transactionBlocks = payload;
     },
   },
 });

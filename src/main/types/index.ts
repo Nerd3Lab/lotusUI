@@ -22,8 +22,15 @@ export interface ProjectCreatePayload {
 }
 
 export interface NodeRunLogInterface {
-  message: string;
+  message?: string;
   loading: boolean;
   running: boolean;
   error: boolean;
+  transactionBlocks?: number;
+}
+
+export interface AddressType {
+  address: string;
+  alias: string;
+  isActive: boolean;
 }

@@ -1,6 +1,10 @@
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
-import { ProjectCreatePayload, ProjectInterface } from '@/main/types/index';
+import {
+  AddressType,
+  ProjectCreatePayload,
+  ProjectInterface,
+} from '@/main/types/index';
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
 export type Channels = 'node-run-log';
@@ -54,6 +58,10 @@ const electronHandler = {
         isSuiNotInstalled?: boolean;
       }>,
     stopProject: () => ipcRenderer.invoke('node:stopProject') as Promise<void>,
+  },
+  account: {
+    getAccounts: () =>
+      ipcRenderer.invoke('account:getAccounts') as Promise<AddressType[]>,
   },
 };
 

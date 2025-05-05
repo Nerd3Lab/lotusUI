@@ -1,5 +1,5 @@
-export const formatBalanceWei = (wei: string): string => {
-  return `${(Number(wei) / 1e18).toFixed(4)} ETH`;
+export const formatBalanceFromRaw = (wei: string): string => {
+  return `${(Number(wei) / 1e9).toFixed(2)}`;
 };
 
 export function formatTimestamp(timestamp: number): string {
@@ -10,3 +10,8 @@ export function formatTimestamp(timestamp: number): string {
     hour12: false,
   });
 }
+
+export const formatAddress = (address: string): string => {
+  if (!address || address.length < 8) return address;
+  return `${address.slice(0, 10)}...${address.slice(-10)}`;
+};

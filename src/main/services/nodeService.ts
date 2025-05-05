@@ -16,6 +16,10 @@ import extract from 'extract-zip';
 import { ProjectInterface } from '@/main/types/index';
 
 let SUI_LOCAL_NODE_PROCESS: ChildProcessWithoutNullStreams | null = null;
+let SUI_LOCAL_NODE_STATUS: {
+  isRunning: boolean;
+  transactionBlocks: number;
+} | null = null;
 
 export class NodeService extends ParentService {
   private projectService?: ProjectService;
@@ -46,6 +50,7 @@ export class NodeService extends ParentService {
       if (SUI_LOCAL_NODE_PROCESS) {
         SUI_LOCAL_NODE_PROCESS.kill();
         SUI_LOCAL_NODE_PROCESS = null;
+        SUI_LOCAL_NODE_STATUS = null;
       }
     });
   }
@@ -75,7 +80,15 @@ export class NodeService extends ParentService {
         };
       }
 
+      console.log({ SUI_LOCAL_NODE_PROCESS });
+
       if (SUI_LOCAL_NODE_PROCESS) {
+        console.log({
+          message: 'Sui local node is already running',
+          loading: false,
+          running: true,
+          error: false,
+        });
         if (this.isActive()) {
           this.window?.webContents.send('node-run-log', {
             message: 'Sui local node is already running',
@@ -87,8 +100,12 @@ export class NodeService extends ParentService {
         }
       }
 
+      const projectPath = appPath.projects;
+      const projectDir = `${projectPath}/${name}`;
+      const dataDir = `${projectDir}/data`;
+
       const env = { RUST_LOG: 'off,sui_node=info' };
-      const args = ['start', '--with-faucet', '--force-regenesis'];
+      const args = ['start', '--with-faucet', `--network.config '${dataDir}'`];
 
       try {
         SUI_LOCAL_NODE_PROCESS = spawn('sui', args, {
@@ -96,39 +113,51 @@ export class NodeService extends ParentService {
             ...process.env,
             ...env,
           },
+          shell: true,
         });
 
         SUI_LOCAL_NODE_PROCESS.stdout.on('data', async (data) => {
           const message = data.toString();
-          // console.log('stdout', { message });
-          if (this.isActive()) {
-            this.window?.webContents.send('node-run-log', {
-              message,
-              loading: false,
-              running: true,
-              error: false,
-            });
-          }
-
           const suiNodeStatus = await this.getSuiNodeStatus();
 
-          if (
-            suiNodeStatus &&
-            suiNodeStatus.isSuccess &&
-            suiNodeStatus.isRunning
-          ) {
+          if (suiNodeStatus && suiNodeStatus.isSuccess) {
+            SUI_LOCAL_NODE_STATUS = {
+              isRunning: suiNodeStatus.isRunning!,
+              transactionBlocks: suiNodeStatus.transactionBlocks || 0,
+            };
+          }
+
+          if (this.isActive() && SUI_LOCAL_NODE_STATUS?.isRunning) {
             this.window?.webContents.send('node-run-log', {
-              message: 'Sui local node is already running',
               loading: false,
               running: true,
               error: false,
+              transactionBlocks: SUI_LOCAL_NODE_STATUS.transactionBlocks,
             });
           }
         });
 
-        SUI_LOCAL_NODE_PROCESS.stderr.on('data', (data) => {
+        SUI_LOCAL_NODE_PROCESS.stderr.on('data', async (data) => {
           const message = data.toString();
-          // console.log('stderr', { message });
+
+          const suiNodeStatus = await this.getSuiNodeStatus();
+
+          if (suiNodeStatus && suiNodeStatus.isSuccess) {
+            SUI_LOCAL_NODE_STATUS = {
+              isRunning: suiNodeStatus.isRunning!,
+              transactionBlocks: suiNodeStatus.transactionBlocks || 0,
+            };
+
+            if (this.isActive() && SUI_LOCAL_NODE_STATUS?.isRunning) {
+              this.window?.webContents.send('node-run-log', {
+                loading: false,
+                running: true,
+                error: false,
+                transactionBlocks: SUI_LOCAL_NODE_STATUS.transactionBlocks,
+              });
+            }
+          }
+
           if (this.isActive()) {
             this.window?.webContents.send('node-run-log', {
               message,
@@ -139,6 +168,7 @@ export class NodeService extends ParentService {
           }
         });
       } catch (error) {
+        SUI_LOCAL_NODE_STATUS = null;
         return {
           isSuccess: false,
           error:
@@ -153,6 +183,7 @@ export class NodeService extends ParentService {
         error: undefined,
       };
     } catch (error) {
+      SUI_LOCAL_NODE_STATUS = null;
       return {
         isSuccess: false,
         error:
@@ -165,6 +196,7 @@ export class NodeService extends ParentService {
     if (SUI_LOCAL_NODE_PROCESS) {
       SUI_LOCAL_NODE_PROCESS.kill();
       SUI_LOCAL_NODE_PROCESS = null;
+      SUI_LOCAL_NODE_STATUS = null;
 
       if (this.isActive()) {
         this.window?.webContents.send('node-run-log', {
