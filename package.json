@@ -1,12 +1,19 @@
 {
   "name": "lotusui",
+  "version": "1.0.0",
   "description": "Full local sui development user interface",
   "keywords": [
     "sui",
     "smart contract",
     "local development",
     "typescript",
-    "electron"
+    "electron",
+    "web3",
+    "sui development",
+    "playground",
+    "dapp",
+    "decentralized",
+    "blockchain"
   ],
   "homepage": "https://github.com/Nerd3Lab/lotusUI#readme",
   "bugs": {
@@ -18,17 +25,10 @@
   },
   "license": "MIT",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://electron-react-boilerplate.js.org"
+    "name": "frongrider2",
+    "email": "frongrider2@gmail.com",
+    "url": "https://github.com/frongrider2"
   },
-  "contributors": [
-    {
-      "name": "Amila Welihinda",
-      "email": "amilajack@gmail.com",
-      "url": "https://github.com/amilajack"
-    }
-  ],
   "main": "./.erb/dll/main.bundle.dev.js",
   "scripts": {
     "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
@@ -266,9 +266,6 @@
     "publish": {
       "provider": "github"
     }
-  },
-  "collective": {
-    "url": "https://opencollective.com/electron-react-boilerplate-594"
   },
   "devEngines": {
     "runtime": {

@@ -8,7 +8,7 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, shell } from 'electron';
 import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
@@ -21,10 +21,81 @@ import { installExtension, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 console.log(appPath);
 
 class AppUpdater {
+  private downloadProgressDialog: Electron.MessageBoxReturnValue | null = null;
+
+  private showDownloadProgressDialog() {
+    dialog
+      .showMessageBox({
+        type: 'info',
+        title: 'Downloading Updates',
+        message: 'Downloading updates...',
+        buttons: [],
+      })
+      .then((dialogRef) => {
+        this.downloadProgressDialog = dialogRef;
+      });
+  }
+
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
     autoUpdater.checkForUpdatesAndNotify();
+
+    autoUpdater.on('update-available', () => {
+      console.log('update-available');
+      dialog
+        .showMessageBox({
+          type: 'info',
+          title: 'Found Updates',
+          message: 'Found updates, do you want to update now?',
+          buttons: ['Update', 'No'],
+        })
+        .then((buttonIndex) => {
+          if (buttonIndex.response === 0) {
+            this.showDownloadProgressDialog();
+            autoUpdater.downloadUpdate();
+          }
+        });
+    });
+
+    autoUpdater.on('download-progress', (progressObj) => {
+      // if (this.downloadProgressDialog) {
+      //   const log_message = `Download speed: ${progressObj.bytesPerSecond} - Downloaded ${progressObj.percent}% (${progressObj.transferred}/${progressObj.total})`;
+      //   dialog.showMessageBox({
+      //     type: 'info',
+      //     title: 'Downloading Updates',
+      //     message: log_message,
+      //     buttons: [],
+      //   });
+      // }
+
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow?.webContents?.send('download-progress', { progressObj });
+      }
+    });
+
+    autoUpdater.on('update-downloaded', (info) => {
+      if (this.downloadProgressDialog) {
+        this.downloadProgressDialog = null;
+      }
+
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow?.webContents?.send('update-downloaded-success', { info });
+      }
+
+      // trackEvent('app_update', { platform: process.platform });
+
+      dialog
+        .showMessageBox({
+          type: 'info',
+          title: 'Install Updates',
+          message: 'Updates downloaded, application will be quit for update...',
+          buttons: ['Quit and Install'],
+        })
+        .then(() => {
+          autoUpdater.quitAndInstall(false, true);
+        });
+    });
   }
 }
 

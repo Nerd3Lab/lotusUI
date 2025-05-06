@@ -10,7 +10,10 @@ import {
 } from '@/main/types/index';
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'node-run-log';
+export type Channels =
+  | 'node-run-log'
+  | 'download-progress'
+  | 'update-downloaded-success';
 
 const electronHandler = {
   ipcRenderer: {
