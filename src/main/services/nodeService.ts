@@ -105,7 +105,9 @@ export class NodeService extends ParentService {
       const dataDir = `${projectDir}/data`;
 
       const env = { RUST_LOG: 'off,sui_node=info' };
-      const args = ['start', '--with-faucet', `--network.config '${dataDir}'`];
+      const args = ['start', `--network.config '${dataDir}'`, '--with-faucet'];
+
+      console.log({ args });
 
       try {
         SUI_LOCAL_NODE_PROCESS = spawn('sui', args, {
@@ -116,56 +118,74 @@ export class NodeService extends ParentService {
           shell: true,
         });
 
-        SUI_LOCAL_NODE_PROCESS.stdout.on('data', async (data) => {
-          const message = data.toString();
-          const suiNodeStatus = await this.getSuiNodeStatus();
+        // console.log({ SUI_LOCAL_NODE_PROCESS });
 
-          if (suiNodeStatus && suiNodeStatus.isSuccess) {
-            SUI_LOCAL_NODE_STATUS = {
-              isRunning: suiNodeStatus.isRunning!,
-              transactionBlocks: suiNodeStatus.transactionBlocks || 0,
-            };
-          }
+        // SUI_LOCAL_NODE_PROCESS.stdout.on('data', async (data) => {
+        //   const message = data.toString();
+        //   const suiNodeStatus = await this.getSuiNodeStatus();
 
-          if (this.isActive() && SUI_LOCAL_NODE_STATUS?.isRunning) {
-            this.window?.webContents.send('node-run-log', {
-              loading: false,
-              running: true,
-              error: false,
-              transactionBlocks: SUI_LOCAL_NODE_STATUS.transactionBlocks,
-            });
-          }
-        });
+        //   if (suiNodeStatus && suiNodeStatus.isSuccess) {
+        //     SUI_LOCAL_NODE_STATUS = {
+        //       isRunning: suiNodeStatus.isRunning!,
+        //       transactionBlocks: suiNodeStatus.transactionBlocks || 0,
+        //     };
+        //   }
+
+        //   if (this.isActive() && SUI_LOCAL_NODE_STATUS?.isRunning) {
+        //     this.window?.webContents.send('node-run-log', {
+        //       loading: false,
+        //       running: true,
+        //       error: false,
+        //       transactionBlocks: SUI_LOCAL_NODE_STATUS.transactionBlocks,
+        //     });
+        //   }
+        // });
 
         SUI_LOCAL_NODE_PROCESS.stderr.on('data', async (data) => {
           const message = data.toString();
+          // console.log({ message });
 
           const suiNodeStatus = await this.getSuiNodeStatus();
 
           if (suiNodeStatus && suiNodeStatus.isSuccess) {
+            const transactionBlocks = suiNodeStatus.transactionBlocks;
             SUI_LOCAL_NODE_STATUS = {
               isRunning: suiNodeStatus.isRunning!,
-              transactionBlocks: suiNodeStatus.transactionBlocks || 0,
+              transactionBlocks: transactionBlocks || 0,
             };
+
+            const project = this.projectService!.getProject(name);
+
+            const checkpointDone =
+              +transactionBlocks >= project!.configJson.transactionBlocks;
+
+            console.log({
+              transactionBlocks,
+              lastest: project!.configJson.transactionBlocks,
+            });
+
+            if (checkpointDone) {
+              this.projectService!.updateProject(
+                name,
+                'transactionBlocks',
+                +transactionBlocks,
+              );
+            }
 
             if (this.isActive() && SUI_LOCAL_NODE_STATUS?.isRunning) {
               this.window?.webContents.send('node-run-log', {
+                message,
                 loading: false,
                 running: true,
                 error: false,
                 transactionBlocks: SUI_LOCAL_NODE_STATUS.transactionBlocks,
+                checkpointDone,
+                lastestCheckpoint: project!.configJson.transactionBlocks,
               });
             }
           }
 
-          if (this.isActive()) {
-            this.window?.webContents.send('node-run-log', {
-              message,
-              loading: false,
-              running: true,
-              error: true,
-            });
-          }
+          // console.log({ message, suiNodeStatus, SUI_LOCAL_NODE_STATUS });
         });
       } catch (error) {
         SUI_LOCAL_NODE_STATUS = null;
@@ -254,7 +274,11 @@ export class NodeService extends ParentService {
     });
   }
 
-  async createSuiGenesis(name: string, reForce = false) {
+  async createSuiGenesis(
+    name: string,
+    reForce = false,
+    epochDurationMs = 3600,
+  ) {
     const projectPath = appPath.projects;
     const projectDir = `${projectPath}/${name}`;
 
@@ -272,9 +296,8 @@ export class NodeService extends ParentService {
       fs.mkdirSync(dataDir, { recursive: true });
 
       return new Promise((resolve) => {
-        console.log(`sui genesis --working-dir ${dataDir}`);
         exec(
-          `cd '${dataDir}' && sui genesis --working-dir '${dataDir}'`,
+          `sui genesis --working-dir '${dataDir}' --epoch-duration-ms ${epochDurationMs} --with-faucet`,
           (error, stdout, stderr) => {
             if (error) {
               console.log('Error creating sui genesis:', error);
@@ -293,6 +316,8 @@ export class NodeService extends ParentService {
               });
               return;
             }
+
+            // console.log(stdout);
 
             resolve({
               isSuccess: true,

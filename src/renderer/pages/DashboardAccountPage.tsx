@@ -12,6 +12,9 @@ import { AddressType } from '@/main/types/index';
 import { useSuiClient } from '@mysten/dapp-kit';
 import { useRefresh } from '@/renderer/hooks/useRefresh';
 import { useRefreshState } from '@/renderer/states/refresh/reducer';
+import AddAccountModal from '@/renderer/components/Modal/AddAccountModal';
+import { swalFire } from '@/renderer/utils/swalfire';
+import Swal from 'sweetalert2';
 
 export interface Account {
   index: number;
@@ -56,6 +59,33 @@ function DashboardAccountPage() {
       fetchBalance();
     }, [refresh]);
 
+    const setActiveAccount = async () => {
+      try {
+        await window.electron.account.setActiveAccount(account.address);
+        swalFire().success(`Set active account to ${account.alias} done!`);
+        await fetching();
+      } catch (error) {
+        swalFire().error('Failed to set active account');
+      }
+    };
+
+    const requestFaucet = async () => {
+      swalFire().loading('Requesting faucet...');
+      const result = await window.electron.account.requestFaucet(
+        account.address,
+      );
+      if (result) {
+        setTimeout(() => {
+          Swal.close();
+          swalFire().success(`Request faucet for ${account.alias} done!`);
+          fetchBalance();
+        }, 1000);
+      } else {
+        Swal.close();
+        swalFire().error('Request faucet failed!');
+      }
+    };
+
     return (
       <tr
         className={`border-b border-gray-200 py-4 ${account.isActive ? 'bg-gray-100' : ''}`}
@@ -86,11 +116,17 @@ function DashboardAccountPage() {
           <p>{balanceRaw}</p>
         </td>
         <td className="text-center flex items-center gap-2 justify-start py-2">
-          <div className="px-2 py-1 rounded-full bg-purple-500 hover:bg-purple-600 cursor-pointer text-white">
+          <div
+            onClick={requestFaucet}
+            className="px-2 py-1 rounded-full bg-purple-500 hover:bg-purple-600 cursor-pointer text-white"
+          >
             + Faucet
           </div>
           {!account.isActive ? (
-            <div className="px-2 py-1 rounded-full bg-cyan-500 hover:bg-cyan-600 cursor-pointer text-white">
+            <div
+              onClick={setActiveAccount}
+              className="px-2 py-1 rounded-full bg-cyan-500 hover:bg-cyan-600 cursor-pointer text-white"
+            >
               SET AS ACTIVE
             </div>
           ) : (
@@ -101,12 +137,17 @@ function DashboardAccountPage() {
     );
   };
 
+  const [showModal, setShowModal] = useState(false);
+
   return (
     <div className="mx-8">
       <Breadcrumb label="Accounts" />
       <div className="mt-3 flex justify-between items-center">
         <div className="text-2xl font-semibold text-gray-900">Accounts</div>
-        <Button className="flex gap-1 items-center">
+        <Button
+          className="flex gap-1 items-center"
+          onClick={() => setShowModal(true)}
+        >
           <Icon icon="material-symbols:circle-outline" className="w-5 h-5" />
           <span>Add Account</span>
         </Button>
@@ -142,6 +183,8 @@ function DashboardAccountPage() {
           ))}
         </tbody>
       </table>
+
+      <AddAccountModal isOpen={showModal} onClose={() => setShowModal(false)} />
     </div>
   );
 }

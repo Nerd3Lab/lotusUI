@@ -15,8 +15,11 @@ const keySchemeOptions: Option[] = [
 ];
 
 const wordLengthOptions: Option[] = [
-  { value: 'Word12', label: 'Word12' },
-  { value: 'Word24', label: 'Word24' },
+  { value: 'word12', label: 'word12' },
+  { value: 'word15', label: 'word15' },
+  { value: 'word18', label: 'word18' },
+  { value: 'word21', label: 'word21' },
+  { value: 'word24', label: 'word24' },
 ];
 
 export default function AddAccountModal({
@@ -35,12 +38,25 @@ export default function AddAccountModal({
 
   if (!isOpen) return null;
 
+  const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Only allow letters for first character, and letters/numbers/hyphens/underscores after
+    if (value === '' || (
+      /^[a-zA-Z]/.test(value) &&
+      /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(value)
+    )) {
+      setAlias(value);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+    <div className="fixed inset-0 flex justify-center items-center z-50">
+      <div onClick={onClose} className="w-full h-full bg-black/40 absolute top-0 left-0" />
+
       <div className="bg-white rounded-2xl w-full max-w-md p-6 relative shadow-lg">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer"
         >
           <Icon icon="mdi:close" width={20} height={20} />
         </button>
@@ -58,9 +74,9 @@ export default function AddAccountModal({
           <Input
             label="Alias"
             required
-            value=""
-            onChange={() => {}}
-            placeholder="Type your project name"
+            value={alias}
+            onChange={handleAliasChange}
+            placeholder="Type your alias of account"
             error={''}
           />
           <hr className="border border-[#E9EAEB]" />
@@ -81,7 +97,7 @@ export default function AddAccountModal({
             onSelect={(opt) => setWordLength(opt.value)}
             placeholder="Select word length"
           />
-          <div className="relative">
+          {/* <div className="relative">
             <div className="w-full">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Faucet
@@ -100,7 +116,7 @@ export default function AddAccountModal({
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className="flex justify-end">

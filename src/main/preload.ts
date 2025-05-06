@@ -2,6 +2,8 @@
 /* eslint no-unused-vars: off */
 import {
   AddressType,
+  CreateAccountPayload,
+  CreateAccountResult,
   ProjectCreatePayload,
   ProjectInterface,
 } from '@/main/types/index';
@@ -62,6 +64,17 @@ const electronHandler = {
   account: {
     getAccounts: () =>
       ipcRenderer.invoke('account:getAccounts') as Promise<AddressType[]>,
+    generateNewAccount: (payload: CreateAccountPayload) =>
+      ipcRenderer.invoke('account:generateNewAccount', payload) as Promise<
+        CreateAccountResult | undefined
+      >,
+    setActiveAccount: (address: string) =>
+      ipcRenderer.invoke(
+        'account:setActiveAccount',
+        address,
+      ) as Promise<boolean>,
+    requestFaucet: (address: string) =>
+      ipcRenderer.invoke('account:requestFaucet', address) as Promise<boolean>,
   },
 };
 

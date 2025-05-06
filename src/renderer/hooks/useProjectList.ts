@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ProjectInterface } from '@/main/types/index';
 
-export function useProjectList() {
+export function useProjectList(reload?: boolean) {
   const [data, setData] = useState<ProjectInterface[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +19,7 @@ export function useProjectList() {
     }
 
     fetchProjects();
-  }, []);
+  }, [reload]);
 
   return { data, loading, error };
 }

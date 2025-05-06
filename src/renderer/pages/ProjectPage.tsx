@@ -14,15 +14,21 @@ function ProjectPage() {
     setSearch(e.target.value);
   };
 
+  const [reload, setReload] = useState(false);
+
   const {
     data: projectLists,
     loading: projectListsLoading,
     error: projectListsError,
-  } = useProjectList();
+  } = useProjectList(reload);
 
   const projects = projectLists.filter((pro) =>
     pro.configJson.name.toLocaleLowerCase().includes(search.toLowerCase()),
   );
+
+  const handleReload = () => {
+    setReload(!reload);
+  };
 
   return (
     <div className="w-full flex flex-col gap-3 relative">
@@ -49,6 +55,7 @@ function ProjectPage() {
             project={proj}
             key={`project-${proj.configJson.name}`}
             status="active"
+            handleReload={handleReload}
           />
         ))}
       </div>

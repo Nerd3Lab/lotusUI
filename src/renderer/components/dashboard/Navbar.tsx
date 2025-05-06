@@ -2,9 +2,22 @@ import SUI from '@asset/img/crypto/sui-white.svg';
 import LOGO from '@asset/img/logo-white.svg';
 import NavLinkItem from './NavLinkItem'; // ปรับ path ให้ถูก
 import { useProjectState } from '@/renderer/states/project/reducer';
+import { Icon } from '@iconify/react';
 
 const NavBar = () => {
   const project = useProjectState();
+
+  const syncPercentage =
+    project.transactionBlocks && project.configJson.transactionBlocks
+      ? Math.min(
+          100,
+          Math.round(
+            (project.transactionBlocks / project.configJson.transactionBlocks) *
+              100,
+          ),
+        )
+      : 0;
+
   return (
     <nav className="p-4 mb-5">
       <div className="bg-[#0F0F10] text-white px-10 py-3 rounded-xl flex justify-between items-center">
@@ -34,7 +47,25 @@ const NavBar = () => {
               </span>
             }
           />
-          <StatusItem label="Total TX Block" value={project.transactionBlocks} />
+          <StatusItem
+            label="Total TX Block"
+            value={project.transactionBlocks}
+          />
+          <StatusItem
+            label="Status"
+            value={
+              project.checkpointDone ? (
+                <span className="flex items-center gap-1 text-cyan-600">
+                  Sync done
+                </span>
+              ) : (
+                <span className="flex items-center gap-1 text-yellow-600">
+                  <Icon icon={'codex:loader'} className='text-xl'/>
+                  Sync {syncPercentage}%
+                </span>
+              )
+            }
+          />
           {/* <StatusItem label="Network ID" value="22222" /> */}
           <StatusItem label="RPC Server" value="Http://127.0.0.1:9000" />
         </div>

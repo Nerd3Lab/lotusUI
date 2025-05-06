@@ -1,3 +1,4 @@
+import Breadcrumb from '@/renderer/components/dashboard/Breadcrumb';
 import { useAppSelector } from '@/renderer/states/hooks';
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
@@ -24,10 +25,11 @@ function DashboardLogPage() {
 
   return (
     <div className="w-full px-8">
-      <div className="p-4 bg-gray-900 text-white rounded-lg shadow-lg w-full max-w-full mx-auto">
+      <Breadcrumb label="Logging" />
+      <div className="p-4 mt-4 bg-gray-900 text-white rounded-lg shadow-lg w-full max-w-full mx-auto">
         <h2 className="text-lg font-bold text-blue-400">Live Logs</h2>
         <div
-          className="h-[70vh] overflow-auto border border-gray-700 p-2 mt-2 rounded"
+          className="h-[60vh] overflow-auto border border-gray-700 p-2 mt-2 rounded"
           ref={logContainerRef}
         >
           {logs.map((log, index) => {

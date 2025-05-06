@@ -127,19 +127,25 @@ export class ProjectService extends ParentService {
             ...payload,
             createdAt: timestamp,
             lastedActive: timestamp,
+            transactionBlocks: 0,
           },
           null,
           2,
         ),
       );
 
-      this.nodeService!.createSuiGenesis(payload.name);
+      this.nodeService!.createSuiGenesis(
+        payload.name,
+        false,
+        payload.epochDuration,
+      );
 
       return {
         configJson: {
           ...payload,
           createdAt: timestamp,
           lastedActive: timestamp,
+          transactionBlocks: 0,
         },
         path: projectDir,
       };

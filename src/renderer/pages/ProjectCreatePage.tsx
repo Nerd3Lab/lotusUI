@@ -14,7 +14,7 @@ function ProjectCreate() {
   const [description, setDescription] = useState<string>('');
   const [error, setError] = useState({ name: '' });
   const [isFullNode, setIsFullNode] = useState<boolean>(false);
-  const [epochDuration, setEpochDuration] = useState<string>('60');
+  const [epochDuration, setEpochDuration] = useState<string>('60000');
   // const [suiVersion, setSuiVersion] = useState<string>('Testnet-v1.47.0');
 
 
@@ -50,14 +50,12 @@ function ProjectCreate() {
       return;
     }
 
-    dispatch(ProjectSlide.actions.selectProject(result));
+    // dispatch(ProjectSlide.actions.selectProject(result));
 
-    navigate('/loading');
+    navigate('/');
   };
 
   const onChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log({ projectLists });
-
     setName(e.target.value.trim().replace(/ /g, ''));
 
     // check name
@@ -134,7 +132,7 @@ function ProjectCreate() {
         </label>
         <div className="flex items-center">
           <span className="bg-gray-100 px-4 py-2 rounded-l-xl text-gray-700 text-sm">
-            Seconds
+            Milli Seconds
           </span>
           <Input
             value={epochDuration}

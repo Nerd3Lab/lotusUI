@@ -11,6 +11,8 @@ interface ProjectState extends ProjectInterface {
   };
   logs: string[];
   transactionBlocks: number;
+  checkpointDone: boolean;
+  lastestCheckpoint: number;
 }
 
 const initialState: ProjectState = {
@@ -22,6 +24,7 @@ const initialState: ProjectState = {
     createdAt: 0,
     lastedActive: 0,
     description: '',
+    transactionBlocks: 0,
   },
   path: '',
   status: {
@@ -31,6 +34,8 @@ const initialState: ProjectState = {
   },
   logs: [],
   transactionBlocks: 0,
+  checkpointDone: false,
+  lastestCheckpoint: 0,
 };
 
 export const ProjectSlide = createSlice({
@@ -49,6 +54,7 @@ export const ProjectSlide = createSlice({
       state.configJson.createdAt = payload.configJson.createdAt;
       state.configJson.lastedActive = payload.configJson.lastedActive;
       state.configJson.description = payload.configJson.description;
+      state.configJson.transactionBlocks = payload.configJson.transactionBlocks;
 
       state.status.loading = false;
       state.status.running = false;
@@ -70,6 +76,12 @@ export const ProjectSlide = createSlice({
     setTransactionBlocks: (state, { payload }: { payload: number }) => {
       state.transactionBlocks = payload;
     },
+    setCheckpointDone: (state, { payload }: { payload: boolean }) => {
+      state.checkpointDone = payload;
+    },
+    setLastestCheckpoint: (state, { payload }: { payload: number }) => {
+      state.lastestCheckpoint = payload;
+    }
   },
 });
 

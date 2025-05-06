@@ -43,14 +43,30 @@ export function swalFire() {
     });
   };
 
-  // const question = (text: string, messages?: SweetAlertOptions) => {
-  //   return Swal.fire({
-  //     icon: 'question',
-  //     showCancelButton: true,
-  //     text,
-  //     ...messages,
-  //   });
-  // };
+  const question = (text: string, messages?: SweetAlertOptions) => {
+    return Swal.fire({
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#00b8db',
+      cancelButtonColor: '#dc3545',
+      text,
+      ...messages,
+    });
+  };
+
+  const loading = (text: string, messages?: SweetAlertOptions) => {
+    return Swal.fire({
+      text,
+      theme: 'dark',
+      confirmButtonColor: '#00b8db',
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+      ...messages,
+    });
+  };
 
   // const info = (text: string, messages?: SweetAlertOptions) => {
   //   return Swal.fire({
@@ -63,7 +79,8 @@ export function swalFire() {
     success,
     error,
     warn,
-    // question,
+    question,
+    loading,
     // info,
   };
 }

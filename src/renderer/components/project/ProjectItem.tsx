@@ -6,13 +6,15 @@ import { swalFire } from '@/renderer/utils/swalfire';
 import { useNavigate } from 'react-router-dom';
 import ChainIcon from '../utility/ChainIcon';
 import { StatusBadge } from '../utility/StatusBadge';
+import { Icon } from '@iconify/react';
 
 interface ProjectItemProps {
   status: 'active' | 'inactive';
   project: ProjectInterface;
+  handleReload: () => void;
 }
 
-const ProjectItem = ({ status, project }: ProjectItemProps) => {
+const ProjectItem = ({ status, project, handleReload }: ProjectItemProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -33,6 +35,28 @@ const ProjectItem = ({ status, project }: ProjectItemProps) => {
     navigate('/loading');
   };
 
+  const handleDelete = async (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+
+    const swal = await swalFire().question(
+      `Are you sure you want to delete ${project.configJson.name}?`,
+    );
+
+    if (swal.isConfirmed) {
+      const result = await window.electron.project.removeProject(
+        project.configJson.name,
+      );
+
+      if (result) {
+        swalFire().success('Project deleted successfully');
+      } else {
+        swalFire().error('Failed to delete project');
+      }
+
+      handleReload();
+    }
+  };
+
   return (
     <div
       onClick={onClick}
@@ -49,7 +73,16 @@ const ProjectItem = ({ status, project }: ProjectItemProps) => {
             {project.configJson.description}
           </p>
         </div>
-        <StatusBadge status={status} />
+        <div className="flex items-center gap-2">
+          <StatusBadge status={status} />
+
+          <div onClick={handleDelete}>
+            <Icon
+              icon={'material-symbols:delete'}
+              className="text-red-500 text-2xl cursor-pointer hover:text-red-600"
+            />
+          </div>
+        </div>
       </div>
       <div className="flex w-full items-center justify-between">
         <p className="text-cyan-800 text-sm">

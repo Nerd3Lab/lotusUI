@@ -11,6 +11,7 @@ export interface ProjectJsonInterface {
   createdAt: number;
   lastedActive: number;
   description: string;
+  transactionBlocks: number;
 }
 
 export interface ProjectCreatePayload {
@@ -27,10 +28,25 @@ export interface NodeRunLogInterface {
   running: boolean;
   error: boolean;
   transactionBlocks?: number;
+  checkpointDone?: boolean;
+  lastestCheckpoint?: number;
 }
 
 export interface AddressType {
   address: string;
   alias: string;
   isActive: boolean;
+}
+
+export interface CreateAccountPayload {
+  alias: string;
+  wordLength: 'word12' | 'word15' | 'word18' | 'word21' | 'word24';
+  keyScheme: 'ed25519' | 'secp256k1';
+}
+
+export interface CreateAccountResult {
+  alias: string;
+  address: string;
+  keyScheme: string;
+  recoveryPhrase: string;
 }
