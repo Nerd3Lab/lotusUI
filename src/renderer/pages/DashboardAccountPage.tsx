@@ -17,12 +17,144 @@ import { swalFire } from '@/renderer/utils/swalfire';
 import Swal from 'sweetalert2';
 import AddAccountResultModal from '@/renderer/components/Modal/AddAccountResultModal';
 import Pagination from '@/renderer/components/utility/Pagination';
+import { useProjectState } from '@/renderer/states/project/reducer';
+import Switch from '@/renderer/components/utility/Switch';
 
 export interface Account {
   index: number;
   publicKey: string;
   balance: string;
 }
+
+const AccountItem = ({
+  account,
+  fetching,
+}: {
+  account: AddressType;
+  fetching: () => void;
+}) => {
+  const client = useSuiClient();
+  const [balanceRaw, setBalanceRaw] = useState<string>('0');
+  const [balance, setBalance] = useState<string>('0');
+  const refresh = useRefreshState();
+  const fetchBalance = async () => {
+    try {
+      const ba = await client.getAllBalances({ owner: account.address });
+      const suiBalance = ba.find((b) => b.coinType === '0x2::sui::SUI');
+      if (suiBalance) {
+        setBalanceRaw(suiBalance.totalBalance);
+        setBalance(formatBalanceFromRaw(suiBalance.totalBalance));
+      }
+    } catch (error) {}
+  };
+
+  const project = useProjectState();
+
+  useEffect(() => {
+    fetchBalance();
+  }, [refresh]);
+
+  const setActiveAccount = async () => {
+    if (account.isActive) {
+      return;
+    }
+
+    try {
+      await window.electron.account.setActiveAccount(account.address);
+      swalFire().success(`Set active account to ${account.alias} done!`);
+      await fetching();
+    } catch (error) {
+      swalFire().error('Failed to set active account');
+    }
+  };
+
+  const requestFaucet = async () => {
+    if (!project.checkpointDone) {
+      swalFire().warn('Please wait for checkpoint done');
+      return;
+    }
+
+    swalFire().loading('Requesting faucet...');
+    const result = await window.electron.account.requestFaucet(account.address);
+    if (result) {
+      setTimeout(() => {
+        Swal.close();
+        swalFire().success(`Request faucet for ${account.alias} done!`);
+        fetchBalance();
+      }, 1000);
+    } else {
+      Swal.close();
+      swalFire().error('Request faucet failed!');
+    }
+  };
+
+  const deleteAccount = async () => {
+    if (account.isActive) {
+      swalFire().warn('Cannot delete active account!');
+      return;
+    }
+
+    const check = await swalFire().question(
+      `Are you sure you want to delete account ${account.alias}?`,
+    );
+
+    if (!check || !check.isConfirmed) {
+      return;
+    }
+
+    const result = await window.electron.account.deleteAccount(account.address);
+    if (result) {
+      swalFire().success(`Delete account ${account.alias} done!`);
+      fetching();
+    } else {
+      swalFire().error('Delete account failed!');
+    }
+  };
+
+  return (
+    <tr
+      className={`border-b border-gray-200 py-4 ${account.isActive ? 'bg-cyan-50' : ''}`}
+      key={account.address}
+    >
+      <td className="text-left py-1 flex items-center gap-2">
+        <img src={Avatar} className="w-6 h-6 rounded-full" />
+        <CopyText value={account.alias} />
+        <span>{account.alias}</span>
+      </td>
+      <td className="text-left py-1 gap-2 w-[20rem]">
+        <div className="flex items-center">
+          <CopyText value={account.address} />
+          <span className="text-sm"> {formatAddress(account.address)}</span>
+        </div>
+      </td>
+      <td className="text-center flex items-center justify-start py-1">
+        <Switch value={account.isActive} onChange={setActiveAccount} />
+      </td>
+      <td className="text-left py-1">
+        <div className="flex items-center gap-2">
+          <div
+            onClick={requestFaucet}
+            className="px-1 py-1 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 cursor-pointer"
+          >
+            <Icon icon="icons8:plus" className="w-5 h-5" />
+          </div>
+          <div>
+            <b>{balance} SUI</b>
+            <p>{balanceRaw}</p>
+          </div>
+        </div>
+      </td>
+      <td className="text-center flex items-center gap-2 py-1">
+        <div onClick={deleteAccount}>
+          <Icon
+            icon={'material-symbols:delete'}
+            className="text-red-400 text-2xl cursor-pointer hover:text-red-300"
+          />
+        </div>
+      </td>
+    </tr>
+  );
+};
 
 function DashboardAccountPage() {
   const [addresses, setAddresses] = useState<AddressType[]>([]);
@@ -40,104 +172,6 @@ function DashboardAccountPage() {
   useEffect(() => {
     fetching();
   }, []);
-
-  const AccountItem = ({ account }: { account: AddressType }) => {
-    const client = useSuiClient();
-    const [balanceRaw, setBalanceRaw] = useState<string>('0');
-    const [balance, setBalance] = useState<string>('0');
-    const refresh = useRefreshState();
-    const fetchBalance = async () => {
-      try {
-        const ba = await client.getAllBalances({ owner: account.address });
-        const suiBalance = ba.find((b) => b.coinType === '0x2::sui::SUI');
-        if (suiBalance) {
-          setBalanceRaw(suiBalance.totalBalance);
-          setBalance(formatBalanceFromRaw(suiBalance.totalBalance));
-        }
-      } catch (error) {}
-    };
-
-    useEffect(() => {
-      fetchBalance();
-    }, [refresh]);
-
-    const setActiveAccount = async () => {
-      try {
-        await window.electron.account.setActiveAccount(account.address);
-        swalFire().success(`Set active account to ${account.alias} done!`);
-        await fetching();
-      } catch (error) {
-        swalFire().error('Failed to set active account');
-      }
-    };
-
-    const requestFaucet = async () => {
-      swalFire().loading('Requesting faucet...');
-      const result = await window.electron.account.requestFaucet(
-        account.address,
-      );
-      if (result) {
-        setTimeout(() => {
-          Swal.close();
-          swalFire().success(`Request faucet for ${account.alias} done!`);
-          fetchBalance();
-        }, 1000);
-      } else {
-        Swal.close();
-        swalFire().error('Request faucet failed!');
-      }
-    };
-
-    return (
-      <tr
-        className={`border-b border-gray-200 py-4 ${account.isActive ? 'bg-cyan-50' : ''}`}
-        key={account.address}
-      >
-        <td className="text-left py-1 flex items-center gap-2">
-          <img src={Avatar} className="w-6 h-6 rounded-full" />
-          <CopyText value={account.alias} />
-          <span>{account.alias}</span>
-        </td>
-        <td className="text-left py-1 gap-2 w-[20rem]">
-          <div className="flex items-center">
-            <CopyText value={account.address} />
-            <span className="text-sm"> {formatAddress(account.address)}</span>
-          </div>
-        </td>
-        <td className="text-center flex items-center justify-start py-1">
-          {account.isActive ? (
-            <div className="px-2 py-1 rounded-full bg-emerald-500 text-white">
-              ACTIVE
-            </div>
-          ) : (
-            <span className="text-gray-500"></span>
-          )}
-        </td>
-        <td className="text-left py-1">
-          <b>{balance} SUI</b>
-          <p>{balanceRaw}</p>
-        </td>
-        <td className="text-center flex items-center gap-2 justify-start py-1">
-          <div
-            onClick={requestFaucet}
-            className="px-2 py-1 rounded-full bg-purple-500 hover:bg-purple-600 cursor-pointer text-white"
-          >
-            + Faucet
-          </div>
-          {!account.isActive ? (
-            <div
-              onClick={setActiveAccount}
-              className="px-2 py-1 rounded-full bg-cyan-500 hover:bg-cyan-600 cursor-pointer text-white"
-            >
-              SET AS ACTIVE
-            </div>
-          ) : (
-            <span className="text-gray-500"></span>
-          )}
-        </td>
-      </tr>
-    );
-  };
 
   const [showModal, setShowModal] = useState(false);
 
@@ -206,7 +240,7 @@ function DashboardAccountPage() {
 
           <tbody className="">
             {paginatedAddresses.map((a) => (
-              <AccountItem account={a} key={a.address} />
+              <AccountItem account={a} key={a.address} fetching={fetching} />
             ))}
           </tbody>
         </table>

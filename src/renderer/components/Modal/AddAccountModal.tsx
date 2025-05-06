@@ -100,8 +100,8 @@ export default function AddAccountModal({
         <div className="space-y-4">
           <Input
             label="Alias"
-            required
             value={alias}
+            required
             onChange={handleAliasChange}
             placeholder="Type your alias of account"
             error={''}

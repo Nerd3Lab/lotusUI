@@ -80,6 +80,8 @@ const electronHandler = {
       ipcRenderer.invoke('account:getObjects', address) as Promise<
         ObjectDataResultItem[]
       >,
+    deleteAccount: (address: string) =>
+      ipcRenderer.invoke('account:deleteAccount', address) as Promise<boolean>,
   },
 };
 

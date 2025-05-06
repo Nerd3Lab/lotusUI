@@ -47,6 +47,10 @@ export class AccountService extends ParentService {
     ipcMain.handle('account:getObjects', async (event, address: string) => {
       return await this.getObjects(address);
     });
+
+    ipcMain.handle('account:deleteAccount', async (event, address: string) => {
+      return await this.deleteAccount(address);
+    });
   }
 
   async getAccounts() {
@@ -100,6 +104,16 @@ export class AccountService extends ParentService {
 
   async requestFaucet(address: string): Promise<boolean> {
     const cmd = `sui client faucet --address ${address}`;
+    try {
+      await this.execCmd(cmd);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async deleteAccount(address: string): Promise<boolean> {
+    const cmd = `sui client remove-address ${address}`;
     try {
       await this.execCmd(cmd);
       return true;

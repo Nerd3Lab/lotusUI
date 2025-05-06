@@ -8,16 +8,16 @@ import CopyText from '@/renderer/components/utility/CopyText';
 const NavBar = () => {
   const project = useProjectState();
 
-  // const syncPercentage =
-  //   project.transactionBlocks && project.configJson.transactionBlocks
-  //     ? Math.min(
-  //         100,
-  //         Math.round(
-  //           (project.transactionBlocks / project.configJson.transactionBlocks) *
-  //             100,
-  //         ),
-  //       )
-  //     : 0;
+  const syncPercentage =
+    project.transactionBlocks && project.configJson.transactionBlocks
+      ? Math.min(
+          100,
+          Math.round(
+            (project.transactionBlocks / project.configJson.transactionBlocks) *
+              100,
+          ),
+        )
+      : 0;
 
   return (
     <nav className="p-4 mb-5">
@@ -59,7 +59,7 @@ const NavBar = () => {
             label="Total TX Block"
             value={project.transactionBlocks}
           />
-          {/* <StatusItem
+          <StatusItem
             label="Status"
             value={
               project.checkpointDone ? (
@@ -73,7 +73,7 @@ const NavBar = () => {
                 </span>
               )
             }
-          /> */}
+          />
           {/* <StatusItem label="Network ID" value="22222" /> */}
           <StatusItem
             label="RPC Server"

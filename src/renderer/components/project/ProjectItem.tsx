@@ -74,7 +74,14 @@ const ProjectItem = ({ status, project, handleReload }: ProjectItemProps) => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <StatusBadge status={status} />
+          {/* <StatusBadge status={status} /> */}
+
+          <div className="flex px-2 py-1 rounded-full items-center gap-1 bg-cyan-600 text-white">
+            <Icon icon="hugeicons:blockchain-03" className="text-xl" />
+            <span className="text-sm">
+              Block : {project.configJson.transactionBlocks}
+            </span>
+          </div>
 
           <div onClick={handleDelete}>
             <Icon

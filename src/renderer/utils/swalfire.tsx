@@ -14,6 +14,7 @@ export type SwalFireOption = {
 export function swalFire() {
   const success = (text: string, messages?: SweetAlertOptions) => {
     return Swal.fire({
+      icon: 'success',
       timer: 2000,
       timerProgressBar: true,
       text,
@@ -24,6 +25,7 @@ export function swalFire() {
   };
   const error = (text: string, messages?: SweetAlertOptions) => {
     return Swal.fire({
+      icon: 'error',
       timer: 2000,
       timerProgressBar: true,
       text,
@@ -34,6 +36,7 @@ export function swalFire() {
   };
   const warn = (text: string, messages?: SweetAlertOptions) => {
     return Swal.fire({
+      icon: 'warning',
       timer: 2000,
       timerProgressBar: true,
       text,
@@ -49,6 +52,7 @@ export function swalFire() {
       showCancelButton: true,
       confirmButtonColor: '#00b8db',
       cancelButtonColor: '#dc3545',
+      theme: 'dark',
       text,
       ...messages,
     });

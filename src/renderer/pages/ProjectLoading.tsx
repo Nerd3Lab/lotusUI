@@ -84,7 +84,11 @@ function ProjectLoading() {
   const checkpointDone = project.checkpointDone;
 
   useEffect(() => {
-    if (running && checkpointDone) {
+    // if (running && checkpointDone) {
+    //   navigate(`/dashboard/account`);
+    // }
+
+    if (running) {
       navigate(`/dashboard/account`);
     }
   }, [running, checkpointDone]);
