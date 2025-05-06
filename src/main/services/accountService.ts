@@ -4,6 +4,7 @@ import {
   AddressType,
   CreateAccountPayload,
   CreateAccountResult,
+  ObjectDataResultItem,
 } from '@/main/types/index';
 import { BrowserWindow, ipcMain } from 'electron';
 import { AppUpdater } from 'electron-updater';
@@ -41,6 +42,10 @@ export class AccountService extends ParentService {
 
     ipcMain.handle('account:requestFaucet', async (event, address: string) => {
       return await this.requestFaucet(address);
+    });
+
+    ipcMain.handle('account:getObjects', async (event, address: string) => {
+      return await this.getObjects(address);
     });
   }
 
@@ -100,6 +105,27 @@ export class AccountService extends ParentService {
       return true;
     } catch (error) {
       return false;
+    }
+  }
+
+  async getObjects(address: string): Promise<ObjectDataResultItem[]> {
+    const cmd = `sui client objects ${address} --json`;
+    try {
+      const result = await this.execCmd(cmd);
+      const resultJson = JSON.parse(result) as any[];
+
+      // console.log({ resultJson });
+
+      if (resultJson) {
+        return resultJson.map((obj) => {
+          return obj.data as ObjectDataResultItem;
+        });
+      }
+
+      return [];
+    } catch (error) {
+      console.log(error)
+      return [];
     }
   }
 }

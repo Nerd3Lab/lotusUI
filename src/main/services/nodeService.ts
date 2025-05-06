@@ -80,7 +80,7 @@ export class NodeService extends ParentService {
         };
       }
 
-      console.log({ SUI_LOCAL_NODE_PROCESS });
+      // console.log({ SUI_LOCAL_NODE_PROCESS });
 
       if (SUI_LOCAL_NODE_PROCESS) {
         console.log({
@@ -159,10 +159,10 @@ export class NodeService extends ParentService {
             const checkpointDone =
               +transactionBlocks >= project!.configJson.transactionBlocks;
 
-            console.log({
-              transactionBlocks,
-              lastest: project!.configJson.transactionBlocks,
-            });
+            // console.log({
+            //   transactionBlocks,
+            //   lastest: project!.configJson.transactionBlocks,
+            // });
 
             if (checkpointDone) {
               this.projectService!.updateProject(

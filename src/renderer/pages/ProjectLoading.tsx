@@ -20,7 +20,6 @@ function ProjectLoading() {
   const navigate = useNavigate();
   const logs = useAppSelector((state) => state.project.logs);
 
-
   const checkingProject = async () => {
     if (!project?.configJson.name) {
       dispatch(ProjectSlide.actions.addLog(`Not found project`));
@@ -33,7 +32,11 @@ function ProjectLoading() {
     );
 
     if (!projectGet) {
-      dispatch(ProjectSlide.actions.addLog(`Project : ${project.configJson.name} not found`));
+      dispatch(
+        ProjectSlide.actions.addLog(
+          `Project : ${project.configJson.name} not found`,
+        ),
+      );
       setisError(true);
       return;
     }
@@ -55,18 +58,36 @@ function ProjectLoading() {
       return;
     }
 
-    dispatch(ProjectSlide.actions.addLog('Project found, loading Sui local development...'));
+    dispatch(
+      ProjectSlide.actions.addLog(
+        'Project found, loading Sui local development...',
+      ),
+    );
   };
 
   useEffect(() => {
     checkingProject();
   }, []);
 
+  const syncPercentage =
+    project.transactionBlocks && project.configJson.transactionBlocks
+      ? Math.min(
+          100,
+          Math.round(
+            (project.transactionBlocks / project.configJson.transactionBlocks) *
+              100,
+          ),
+        )
+      : 0;
+
+  const running = project.status.running;
+  const checkpointDone = project.checkpointDone;
+
   useEffect(() => {
-    if (project.status.running) {
+    if (running && checkpointDone) {
       navigate(`/dashboard/account`);
     }
-  }, [project.status.running]);
+  }, [running, checkpointDone]);
 
   return (
     <div className="h-full flex justify-center items-center">
@@ -82,7 +103,11 @@ function ProjectLoading() {
           <p className="text-[#535862] my-2">We are building for you </p>
         )}
 
-        <p className="text-cyan-500"> {logs[logs.length - 1] || ''}</p>
+        {running ? (
+          <p className="text-cyan-500">Sync tx block {syncPercentage}%</p>
+        ) : (
+          <p className="text-cyan-500"> {logs[logs.length - 1] || ''}</p>
+        )}
 
         {isSuiNotInstalled && (
           <div className="flex flex-col items-center my-2">

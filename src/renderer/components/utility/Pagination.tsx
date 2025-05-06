@@ -1,16 +1,12 @@
-import styled from 'styled-components';
-
-interface Props extends SimpleComponent {
+interface Props {
   totalPages: number;
   currentPage: number;
   onPageChange: (page: number) => void;
 }
 
-const PaginationWrapper = styled.div``;
-
 function Pagination({ totalPages, currentPage, onPageChange }: Props) {
   const getPageNumbers = () => {
-    const pages = [];
+    const pages: any[] = [];
     if (totalPages <= 7) {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
@@ -33,13 +29,13 @@ function Pagination({ totalPages, currentPage, onPageChange }: Props) {
     return pages;
   };
   return (
-    <PaginationWrapper className="w-full flex items-center justify-between space-x-2 my-4">
-      <div className='w-[10rem]'>
+    <div className="w-full flex items-center justify-between space-x-2 my-4 text-base font-bold">
+      <div className="w-[10rem]">
         {currentPage !== 1 && (
           <button
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-4 py-2 border flex items-center cursor-pointer rounded-full border-gray-200 bg-white text-gray-400"
+            className="px-4 py-2 border flex items-center cursor-pointer rounded-full bg-cyan-100 text-gray-500 border-cyan-500 hover:bg-cyan-200"
           >
             ← Previous
           </button>
@@ -53,8 +49,8 @@ function Pagination({ totalPages, currentPage, onPageChange }: Props) {
               onClick={() => onPageChange(num)}
               className={`px-3 py-2 rounded-lg w-10 h-10 flex items-center justify-center cursor-pointer ${
                 currentPage === num
-                  ? 'bg-gray-50 text-gray-800'
-                  : 'bg-white text-gray-600'
+                  ? 'bg-cyan-500 text-white'
+                  : 'bg-cyan-100 text-gray-500 hover:bg-cyan-200'
               }`}
             >
               {num}
@@ -66,18 +62,18 @@ function Pagination({ totalPages, currentPage, onPageChange }: Props) {
           ),
         )}
       </div>
-      <div  className='w-[10rem] justify-end flex'>
+      <div className="w-[10rem] justify-end flex">
         {currentPage !== totalPages && (
           <button
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 border flex items-center cursor-pointer rounded-full border-gray-200 bg-white text-gray-400"
+            className="px-4 py-2 border flex items-center cursor-pointer rounded-full bg-cyan-100 text-gray-500 border-cyan-500 hover:bg-cyan-200"
           >
             Next →
           </button>
         )}
       </div>
-    </PaginationWrapper>
+    </div>
   );
 }
 

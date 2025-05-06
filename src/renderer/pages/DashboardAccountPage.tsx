@@ -8,13 +8,15 @@ import MnemonicDisplay from '../components/dashboard/account/MnemonicDisplay';
 import { formatAddress, formatBalanceFromRaw } from '../utils';
 import Breadcrumb from '@/renderer/components/dashboard/Breadcrumb';
 import { useEffect, useState } from 'react';
-import { AddressType } from '@/main/types/index';
+import { AddressType, CreateAccountResult } from '@/main/types/index';
 import { useSuiClient } from '@mysten/dapp-kit';
 import { useRefresh } from '@/renderer/hooks/useRefresh';
 import { useRefreshState } from '@/renderer/states/refresh/reducer';
 import AddAccountModal from '@/renderer/components/Modal/AddAccountModal';
 import { swalFire } from '@/renderer/utils/swalfire';
 import Swal from 'sweetalert2';
+import AddAccountResultModal from '@/renderer/components/Modal/AddAccountResultModal';
+import Pagination from '@/renderer/components/utility/Pagination';
 
 export interface Account {
   index: number;
@@ -88,21 +90,21 @@ function DashboardAccountPage() {
 
     return (
       <tr
-        className={`border-b border-gray-200 py-4 ${account.isActive ? 'bg-gray-100' : ''}`}
+        className={`border-b border-gray-200 py-4 ${account.isActive ? 'bg-cyan-50' : ''}`}
         key={account.address}
       >
-        <td className="text-left py-2 flex items-center gap-2">
+        <td className="text-left py-1 flex items-center gap-2">
           <img src={Avatar} className="w-6 h-6 rounded-full" />
           <CopyText value={account.alias} />
           <span>{account.alias}</span>
         </td>
-        <td className="text-left py-2 gap-2 w-[20rem]">
+        <td className="text-left py-1 gap-2 w-[20rem]">
           <div className="flex items-center">
             <CopyText value={account.address} />
             <span className="text-sm"> {formatAddress(account.address)}</span>
           </div>
         </td>
-        <td className="text-center flex items-center justify-start py-2">
+        <td className="text-center flex items-center justify-start py-1">
           {account.isActive ? (
             <div className="px-2 py-1 rounded-full bg-emerald-500 text-white">
               ACTIVE
@@ -111,11 +113,11 @@ function DashboardAccountPage() {
             <span className="text-gray-500"></span>
           )}
         </td>
-        <td className="text-left py-2">
+        <td className="text-left py-1">
           <b>{balance} SUI</b>
           <p>{balanceRaw}</p>
         </td>
-        <td className="text-center flex items-center gap-2 justify-start py-2">
+        <td className="text-center flex items-center gap-2 justify-start py-1">
           <div
             onClick={requestFaucet}
             className="px-2 py-1 rounded-full bg-purple-500 hover:bg-purple-600 cursor-pointer text-white"
@@ -139,6 +141,31 @@ function DashboardAccountPage() {
 
   const [showModal, setShowModal] = useState(false);
 
+  const onCloseModal = async () => {
+    await fetching();
+    setShowModal(false);
+  };
+
+  const [isOpenResult, setIsOpenResult] = useState(false);
+  const [createResult, setCreateResult] = useState<
+    CreateAccountResult | undefined
+  >();
+
+  const openResultAccount = (result: CreateAccountResult) => {
+    onCloseModal();
+    setCreateResult(result);
+    setIsOpenResult(true);
+  };
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
+  const totalPages = Math.ceil(addresses.length / itemsPerPage);
+
+  const paginatedAddresses = addresses.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
   return (
     <div className="mx-8">
       <Breadcrumb label="Accounts" />
@@ -154,37 +181,57 @@ function DashboardAccountPage() {
       </div>
 
       {/* <MnemonicDisplay /> */}
+      <div className="h-[65vh] overflow-y-auto">
+        <table className="w-full mt-4 bg-white px-2">
+          <thead>
+            <tr className="border-b border-gray-200">
+              <th className="text-left py-3 font-semibold text-gray-500 text-xs">
+                ALIAS
+              </th>
+              <th className="text-left py-3 font-semibold text-gray-500 text-xs">
+                ADDRESS
+              </th>
+              <th className="text-left py-3 font-semibold text-gray-500 text-xs">
+                ACTIVE STATUS
+              </th>
+              <th className="text-left py-3 font-semibold text-gray-500 text-xs">
+                BALANCE
+              </th>
+              <th className="text-left py-3 font-semibold text-gray-500 text-xs">
+                ACTION
+              </th>
+              {/* <th className="text-left py-3"></th> */}
+            </tr>
+          </thead>
 
-      <table className="w-full mt-4 bg-white px-2">
-        <thead>
-          <tr className="border-b border-gray-200">
-            <th className="text-left py-3 font-semibold text-gray-500 text-xs">
-              ALIAS
-            </th>
-            <th className="text-left py-3 font-semibold text-gray-500 text-xs">
-              ADDRESS
-            </th>
-            <th className="text-left py-3 font-semibold text-gray-500 text-xs">
-              ACTIVE STATUS
-            </th>
-            <th className="text-left py-3 font-semibold text-gray-500 text-xs">
-              BALANCE
-            </th>
-            <th className="text-left py-3 font-semibold text-gray-500 text-xs">
-              ACTION
-            </th>
-            {/* <th className="text-left py-3"></th> */}
-          </tr>
-        </thead>
+          <tbody className="">
+            {paginatedAddresses.map((a) => (
+              <AccountItem account={a} key={a.address} />
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-        <tbody className="">
-          {addresses.map((a) => (
-            <AccountItem account={a} />
-          ))}
-        </tbody>
-      </table>
+      <Pagination
+        totalPages={totalPages}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+      />
 
-      <AddAccountModal isOpen={showModal} onClose={() => setShowModal(false)} />
+      <AddAccountModal
+        isOpen={showModal}
+        onClose={onCloseModal}
+        openResultAccount={openResultAccount}
+      />
+
+      <AddAccountResultModal
+        isOpen={isOpenResult}
+        onClose={() => {
+          setIsOpenResult(false);
+          setCreateResult(undefined);
+        }}
+        result={createResult}
+      />
     </div>
   );
 }

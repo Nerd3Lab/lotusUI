@@ -50,3 +50,26 @@ export interface CreateAccountResult {
   keyScheme: string;
   recoveryPhrase: string;
 }
+
+export interface ObjectDataResultItem {
+  objectId: string;
+  version: string;
+  digest: string;
+  type: string;
+  owner: {
+    AddressOwner: string;
+  };
+  previousTransaction: string;
+  storageRebate: string;
+  content: {
+    dataType: string;
+    type: string;
+    hasPublicTransfer: boolean;
+    fields: {
+      balance: string;
+      id: {
+        id: string;
+      };
+    };
+  };
+}

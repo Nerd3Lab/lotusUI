@@ -4,6 +4,7 @@ import {
   AddressType,
   CreateAccountPayload,
   CreateAccountResult,
+  ObjectDataResultItem,
   ProjectCreatePayload,
   ProjectInterface,
 } from '@/main/types/index';
@@ -75,6 +76,10 @@ const electronHandler = {
       ) as Promise<boolean>,
     requestFaucet: (address: string) =>
       ipcRenderer.invoke('account:requestFaucet', address) as Promise<boolean>,
+    getObjects: (address: string) =>
+      ipcRenderer.invoke('account:getObjects', address) as Promise<
+        ObjectDataResultItem[]
+      >,
   },
 };
 

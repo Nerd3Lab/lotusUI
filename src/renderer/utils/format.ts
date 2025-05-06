@@ -10,7 +10,7 @@ export function formatTimestamp(timestamp: number): string {
   });
 }
 
-export const formatAddress = (address: string): string => {
-  if (!address || address.length < 8) return address;
-  return `${address.slice(0, 10)}...${address.slice(-10)}`;
+export const formatAddress = (address: string, len = 10): string => {
+  if (!address || address.length < len) return address;
+  return `${address.slice(0, len)}...${address.slice(-1 * len)}`;
 };

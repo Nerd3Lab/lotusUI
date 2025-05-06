@@ -3,10 +3,15 @@ import { Icon } from '@iconify/react';
 import { useState } from 'react';
 import Input from '../utility/Input';
 import Select, { Option } from '../utility/SelectOption';
+import { swalFire } from '@/renderer/utils/swalfire';
+import Swal from 'sweetalert2';
+import { CreateAccountResult } from '@/main/types/index';
+import Button from '@/renderer/components/utility/Button';
 
 type AddAccountModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  openResultAccount: (result: CreateAccountResult) => void;
 };
 
 const keySchemeOptions: Option[] = [
@@ -25,15 +30,32 @@ const wordLengthOptions: Option[] = [
 export default function AddAccountModal({
   isOpen,
   onClose,
+  openResultAccount,
 }: AddAccountModalProps) {
   const [alias, setAlias] = useState('');
   const [keyScheme, setKeyScheme] = useState('ed25519');
-  const [wordLength, setWordLength] = useState('Word12');
+  const [wordLength, setWordLength] = useState('word12');
   const [faucetAmount, setFaucetAmount] = useState('1,000');
 
-  const handleConfirm = () => {
-    console.log({ alias, keyScheme, wordLength, faucetAmount });
-    onClose();
+  const handleConfirm = async () => {
+    swalFire().loading('Creating account...');
+    const result = await window.electron.account.generateNewAccount({
+      alias,
+      keyScheme: keyScheme as any,
+      wordLength: wordLength as any,
+    });
+    // console.log({ result });
+    if (result) {
+      Swal.close();
+      swalFire().success(`Account created successfully!`);
+      openResultAccount(result);
+      setAlias('');
+      setKeyScheme('ed25519');
+      setWordLength('word12');
+    } else {
+      Swal.close();
+      swalFire().error('Failed to create account!');
+    }
   };
 
   if (!isOpen) return null;
@@ -41,17 +63,22 @@ export default function AddAccountModal({
   const handleAliasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // Only allow letters for first character, and letters/numbers/hyphens/underscores after
-    if (value === '' || (
-      /^[a-zA-Z]/.test(value) &&
-      /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(value)
-    )) {
+    if (
+      value === '' ||
+      (/^[a-zA-Z]/.test(value) && /^[a-zA-Z][a-zA-Z0-9_-]*$/.test(value))
+    ) {
       setAlias(value);
     }
   };
 
+  const isDisabled = alias === '' || keyScheme === '' || wordLength === '';
+
   return (
     <div className="fixed inset-0 flex justify-center items-center z-50">
-      <div onClick={onClose} className="w-full h-full bg-black/40 absolute top-0 left-0" />
+      <div
+        onClick={onClose}
+        className="w-full h-full bg-black/40 absolute top-0 left-0"
+      />
 
       <div className="bg-white rounded-2xl w-full max-w-md p-6 relative shadow-lg">
         <button
@@ -120,12 +147,13 @@ export default function AddAccountModal({
         </div>
 
         <div className="flex justify-end">
-          <button
+          <Button
             onClick={handleConfirm}
-            className="mt-6 w-[100px] bg-cyan-400 hover:bg-cyan-500 text-white py-2 rounded-full font-medium"
+            disabled={isDisabled}
+            className="mt-6 w-[100px] bg-cyan-400 hover:bg-cyan-500 text-white py-2 rounded-full font-medium cursor-pointer"
           >
             Confirm
-          </button>
+          </Button>
         </div>
       </div>
     </div>
