@@ -17,9 +17,6 @@ importers:
       '@mysten/dapp-kit':
         specifier: ^0.16.2
         version: 0.16.2(@tanstack/react-query@5.75.1(react@19.1.0))(@types/react-dom@19.1.2(@types/react@19.1.2))(@types/react@19.1.2)(immer@10.1.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
-      '@mysten/sui':
-        specifier: ^1.29.1
-        version: 1.29.1(typescript@5.8.3)
       '@reduxjs/toolkit':
         specifier: ^2.7.0
         version: 2.7.0(react-redux@9.2.0(@types/react@19.1.2)(react@19.1.0)(redux@5.0.1))(react@19.1.0)

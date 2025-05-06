@@ -1,9 +1,8 @@
 import { createNetworkConfig } from '@mysten/dapp-kit';
-import { getFullnodeUrl } from '@mysten/sui/client';
 
 const { networkConfig, useNetworkVariable } = createNetworkConfig({
   localnet: {
-    url: getFullnodeUrl('localnet'),
+    url: 'http://127.0.0.1:9000',
   },
 });
 
