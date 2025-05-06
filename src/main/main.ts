@@ -18,7 +18,8 @@ import { appPath } from '@/main/utils/config';
 import { IpcHandler } from '@/main/services/ipcHandler';
 import { installExtension, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 
-console.log(appPath);
+// console.log(appPath);
+// const suiPathGet = suiPath();
 
 class AppUpdater {
   private downloadProgressDialog: Electron.MessageBoxReturnValue | null = null;
@@ -104,7 +105,11 @@ let mainWindow: BrowserWindow | null = null;
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
+
+  const logPath = app.getPath('logs');
+  console.log('Log path:', logPath);
+
+  event.reply('ipc-example', msgTemplate(logPath));
 });
 
 if (process.env.NODE_ENV === 'production') {
@@ -159,6 +164,7 @@ const createWindow = async () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
+
     if (process.env.START_MINIMIZED) {
       mainWindow.minimize();
     } else {

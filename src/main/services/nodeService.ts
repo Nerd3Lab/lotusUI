@@ -1,6 +1,6 @@
 import { ParentService } from '@/main/services/parentService';
 import { ProjectService } from '@/main/services/projectService';
-import { appPath } from '@/main/utils/config';
+import { appPath, suiBinaryPath } from '@/main/utils/config';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { AppUpdater } from 'electron-updater';
 import path from 'path';
@@ -20,6 +20,8 @@ let SUI_LOCAL_NODE_STATUS: {
   isRunning: boolean;
   transactionBlocks: number;
 } | null = null;
+
+const suiPath = suiBinaryPath();
 
 export class NodeService extends ParentService {
   private projectService?: ProjectService;
@@ -110,7 +112,7 @@ export class NodeService extends ParentService {
       console.log({ args });
 
       try {
-        SUI_LOCAL_NODE_PROCESS = spawn('sui', args, {
+        SUI_LOCAL_NODE_PROCESS = spawn(suiPath, args, {
           env: {
             ...process.env,
             ...env,
@@ -246,7 +248,7 @@ export class NodeService extends ParentService {
     version?: string;
   }> {
     return new Promise((resolve) => {
-      exec('sui -V', (error, stdout, stderr) => {
+      exec(`${suiPath} -V`, (error, stdout, stderr) => {
         if (error) {
           console.log('Error checking sui version:', error);
           resolve({
@@ -297,7 +299,7 @@ export class NodeService extends ParentService {
 
       return new Promise((resolve) => {
         exec(
-          `sui genesis --working-dir '${dataDir}' --epoch-duration-ms ${epochDurationMs} --with-faucet`,
+          `${suiPath} genesis --working-dir '${dataDir}' --epoch-duration-ms ${epochDurationMs} --with-faucet`,
           (error, stdout, stderr) => {
             if (error) {
               console.log('Error creating sui genesis:', error);

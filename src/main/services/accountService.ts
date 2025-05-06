@@ -6,8 +6,11 @@ import {
   CreateAccountResult,
   ObjectDataResultItem,
 } from '@/main/types/index';
+import { suiBinaryPath } from '@/main/utils/config';
 import { BrowserWindow, ipcMain } from 'electron';
 import { AppUpdater } from 'electron-updater';
+
+const suiPath = suiBinaryPath();
 
 export class AccountService extends ParentService {
   private nodeService?: NodeService;
@@ -54,7 +57,7 @@ export class AccountService extends ParentService {
   }
 
   async getAccounts() {
-    const cmd = 'sui client addresses --json';
+    const cmd = `${suiPath} client addresses --json`;
     try {
       const addresses = await this.execCmd(cmd);
       const addressesJson = JSON.parse(addresses);
@@ -82,7 +85,7 @@ export class AccountService extends ParentService {
   async addAccount(
     payload: CreateAccountPayload,
   ): Promise<CreateAccountResult | undefined> {
-    const cmd = `sui client new-address ${payload.keyScheme} ${payload.alias} ${payload.wordLength} --json`;
+    const cmd = `${suiPath} client new-address ${payload.keyScheme} ${payload.alias} ${payload.wordLength} --json`;
     try {
       const result = await this.execCmd(cmd);
       const resultJson = JSON.parse(result);
@@ -93,7 +96,7 @@ export class AccountService extends ParentService {
   }
 
   async setActiveAccount(address: string): Promise<boolean> {
-    const cmd = `sui client switch --address ${address}`;
+    const cmd = `${suiPath} client switch --address ${address}`;
     try {
       await this.execCmd(cmd);
       return true;
@@ -103,7 +106,7 @@ export class AccountService extends ParentService {
   }
 
   async requestFaucet(address: string): Promise<boolean> {
-    const cmd = `sui client faucet --address ${address}`;
+    const cmd = `${suiPath} client faucet --address ${address}`;
     try {
       await this.execCmd(cmd);
       return true;
@@ -113,7 +116,7 @@ export class AccountService extends ParentService {
   }
 
   async deleteAccount(address: string): Promise<boolean> {
-    const cmd = `sui client remove-address ${address}`;
+    const cmd = `${suiPath} client remove-address ${address}`;
     try {
       await this.execCmd(cmd);
       return true;
@@ -123,7 +126,7 @@ export class AccountService extends ParentService {
   }
 
   async getObjects(address: string): Promise<ObjectDataResultItem[]> {
-    const cmd = `sui client objects ${address} --json`;
+    const cmd = `${suiPath} client objects ${address} --json`;
     try {
       const result = await this.execCmd(cmd);
       const resultJson = JSON.parse(result) as any[];

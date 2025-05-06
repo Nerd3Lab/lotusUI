@@ -13,7 +13,8 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 export type Channels =
   | 'node-run-log'
   | 'download-progress'
-  | 'update-downloaded-success';
+  | 'update-downloaded-success'
+  | 'ipc-example';
 
 const electronHandler = {
   ipcRenderer: {
@@ -51,7 +52,7 @@ const electronHandler = {
       >,
     createProject: (payload: ProjectCreatePayload) =>
       ipcRenderer.invoke('project:create', payload) as Promise<
-        ProjectInterface | undefined
+        ProjectInterface | undefined | { error: string }
       >,
     removeProject: (name: string) =>
       ipcRenderer.invoke('project:remove', name) as Promise<boolean>,

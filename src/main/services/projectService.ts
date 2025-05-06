@@ -106,7 +106,9 @@ export class ProjectService extends ParentService {
     };
   }
 
-  createProject(payload: ProjectCreatePayload): ProjectInterface | undefined {
+  async createProject(
+    payload: ProjectCreatePayload,
+  ): Promise<ProjectInterface | undefined | { error: string }> {
     try {
       const projectPath = appPath.projects;
       const projectDir = `${projectPath}/${payload.name}`;
@@ -134,11 +136,17 @@ export class ProjectService extends ParentService {
         ),
       );
 
-      this.nodeService!.createSuiGenesis(
+      const result = (await this.nodeService!.createSuiGenesis(
         payload.name,
         false,
         payload.epochDuration,
-      );
+      )) as any;
+
+      if (!result.isSuccess) {
+        return {
+          error: result.error,
+        };
+      }
 
       return {
         configJson: {
