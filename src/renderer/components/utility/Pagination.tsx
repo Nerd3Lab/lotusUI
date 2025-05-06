@@ -28,6 +28,9 @@ function Pagination({ totalPages, currentPage, onPageChange }: Props) {
     }
     return pages;
   };
+
+  if (totalPages <= 1) return null;
+
   return (
     <div className="w-full flex items-center justify-between space-x-2 my-4 text-base font-bold">
       <div className="w-[10rem]">
