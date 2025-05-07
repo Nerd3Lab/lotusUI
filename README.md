@@ -1,6 +1,6 @@
 <p align="center">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://i.ibb.co/BH2Cbt2c/Logo.png">
+      <source media="(prefers-color-scheme: dark)" srcset="https://i.ibb.co/9Hrstbj9/Logo-dark.png">
       <img src="https://i.ibb.co/BH2Cbt2c/Logo.png" height="30">
     </picture>
 </p>
