@@ -13,10 +13,10 @@ function ProjectCreate() {
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [error, setError] = useState({ name: '' });
-  const [isFullNode, setIsFullNode] = useState<boolean>(false);
+  const [isFullNode, setIsFullNode] = useState<boolean>(true);
+  const [isAutoReset, setIsAutoReset] = useState<boolean>(false);
   const [epochDuration, setEpochDuration] = useState<string>('60000');
   // const [suiVersion, setSuiVersion] = useState<string>('Testnet-v1.47.0');
-
 
   const {
     data: projectLists,
@@ -40,7 +40,7 @@ function ProjectCreate() {
       name: name.trim(),
       fullnode: isFullNode,
       epochDuration: parseInt(epochDuration, 10),
-      isAutoReset: false,
+      isAutoReset: isAutoReset,
       description: description.trim(),
     });
 
@@ -84,7 +84,9 @@ function ProjectCreate() {
         <h1 className="text-gray-900 font-semibold text-2xl">
           Create New Project
         </h1>
-        <span className="text-sm text-gray-600">input information</span>
+        <span className="text-sm text-gray-600">
+          Create your local sui node development
+        </span>
       </div>
       <Input
         label="Project name"
@@ -149,26 +151,73 @@ function ProjectCreate() {
         onChange={(e) => setSuiVersion(e.target.value)}
       /> */}
 
-      {/* <div className="flex gap-4">
-        <div className="flex flex-col border rounded-2xl px-6 py-5 cursor-pointer hover:border-cyan-500 transition-all">
-          <Icon
-            icon="iconamoon:file-add-duotone"
-            className="text-3xl text-cyan-500 mb-2"
-          />
-          <b className="font-semibold text-gray-800">Fullnode</b>
-          <p className="text-gray-600 text-sm">
-            Spin up a demo chain in seconds
-          </p>
+      {/* <div className="grid grid-cols-2 gap-4">
+        <div
+          className={`border-2 px-4 py-4 rounded-2xl flex gap-4 items-center transition-all cursor-pointer hover:border-cyan-500 ${
+            isFullNode ? 'border-cyan-500 border' : 'border-gray-200'
+          }`}
+          onClick={() => setIsFullNode(true)}
+        >
+          <div className={`p-2 rounded-full  ${isFullNode ? 'bg-black text-cyan-500' : 'bg-gray-100 text-cyan-500'}`}>
+            <Icon icon="token:suip" className="text-4xl" />
+          </div>
+          <div>
+            <b className="font-semibold text-gray-800 mt-2">Fullnode</b>
+            <p>Running local sui fullnode</p>
+          </div>
         </div>
-        <div className="flex flex-col border rounded-2xl px-6 py-5 cursor-pointer hover:border-cyan-500 transition-all">
-          <Icon
-            icon="iconamoon:file-add-duotone"
-            className="text-3xl text-cyan-500 mb-2"
-          />
-          <b className="font-semibold text-gray-800">Quick start</b>
-          <p className="text-gray-600 text-sm">
-            Spin up a demo chain in seconds
-          </p>
+
+        <div
+          className={`border-2 px-4 py-4 rounded-2xl flex gap-4 items-center transition-all cursor-pointer hover:border-cyan-500 ${
+            !isFullNode ? 'border-cyan-500' : 'border-gray-200'
+          }`}
+          onClick={() => setIsFullNode(false)}
+        >
+          <div
+            className={`p-2 rounded-full  ${!isFullNode ? 'bg-black text-cyan-500' : 'bg-gray-100 text-cyan-500'}`}
+          >
+            <Icon icon="simple-icons:sui" className="text-4xl" />
+          </div>
+          <div>
+            <b className="font-semibold text-gray-800 mt-2">Lightnode</b>
+            <p>Running local sui lighnode</p>
+          </div>
+        </div>
+      </div> */}
+
+      {/* <div className="grid grid-cols-2 gap-4">
+        <div
+          className={`border-2 px-4 py-4 rounded-2xl flex gap-4 items-center transition-all cursor-pointer hover:border-cyan-500 ${
+            isAutoReset ? 'border-cyan-500 border' : 'border-gray-200'
+          }`}
+          onClick={() => setIsAutoReset(true)}
+        >
+          <div
+            className={`p-2 rounded-full  ${isFullNode ? 'bg-black text-cyan-500' : 'bg-gray-100 text-cyan-500'}`}
+          >
+            <Icon icon="token:suip" className="text-4xl" />
+          </div>
+          <div>
+            <b className="font-semibold text-gray-800 mt-2">Auto Reset</b>
+            <p>Auto reset all data when rerun local node</p>
+          </div>
+        </div>
+
+        <div
+          className={`border-2 px-4 py-4 rounded-2xl flex gap-4 items-center transition-all cursor-pointer hover:border-cyan-500 ${
+            !isAutoReset ? 'border-cyan-500' : 'border-gray-200'
+          }`}
+          onClick={() => setIsAutoReset(false)}
+        >
+          <div
+            className={`p-2 rounded-full  ${!isFullNode ? 'bg-black text-cyan-500' : 'bg-gray-100 text-cyan-500'}`}
+          >
+            <Icon icon="simple-icons:sui" className="text-4xl" />
+          </div>
+          <div>
+            <b className="font-semibold text-gray-800 mt-2">Persist</b>
+            <p>Keep all data when rerun local node</p>
+          </div>
         </div>
       </div> */}
 

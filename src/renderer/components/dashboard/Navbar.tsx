@@ -4,6 +4,7 @@ import NavLinkItem from './NavLinkItem';
 import { useProjectState } from '@/renderer/states/project/reducer';
 import { Icon } from '@iconify/react';
 import CopyText from '@/renderer/components/utility/CopyText';
+import { formatAddress } from '@/renderer/utils/format';
 
 const NavBar = () => {
   const project = useProjectState();
@@ -47,12 +48,26 @@ const NavBar = () => {
           <StatusItem
             label="Project"
             value={
-              <span className="flex items-center gap-1">
-                <div className="w-5 h-5 rounded-full bg-[#6FBCF0]">
-                  <img src={SUI} alt="" className="w-5 h-5" />
-                </div>
-                {project.configJson.name}
-              </span>
+              <div className="flex items-center gap-1">
+                {!project.configJson.fullnode ? (
+                  <Icon icon="token:suip" className="text-base text-cyan-500" />
+                ) : (
+                  <Icon
+                    icon="simple-icons:sui"
+                    className="text-base text-cyan-500"
+                  />
+                )}
+                {formatAddress(project.configJson.name)}
+              </div>
+            }
+          />
+
+          <StatusItem
+            label="Node"
+            value={
+              <div className="flex items-center gap-1">
+                {project.configJson.fullnode ? 'Fullnode' : 'LightNode'}
+              </div>
             }
           />
           <StatusItem

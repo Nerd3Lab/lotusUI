@@ -109,7 +109,11 @@ export class NodeService extends ParentService {
       const env = { RUST_LOG: 'off,sui_node=info' };
       const args = ['start', `--network.config '${dataDir}'`, '--with-faucet'];
 
-      console.log({ args });
+      // const isLighnode = !project.configJson.fullnode;
+
+      // if (isLighnode) {
+      //   args.push('--no-full-node');
+      // }
 
       try {
         SUI_LOCAL_NODE_PROCESS = spawn(suiPath, args, {

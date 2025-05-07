@@ -64,7 +64,15 @@ const ProjectItem = ({ status, project, handleReload }: ProjectItemProps) => {
     transition-transform duration-300 hover:translate-x-2 hover:opacity-80 bg-white will-change-transform"
     >
       <div className="flex items-start justify-between gap-3">
-        <ChainIcon size="lg" circle={true} />
+        {!project.configJson.fullnode ? (
+          <div className={`p-2 rounded-full bg-black text-cyan-500`}>
+            <Icon icon="token:suip" className="text-3xl" />
+          </div>
+        ) : (
+          <div className={`p-2 rounded-full bg-black text-cyan-500`}>
+            <Icon icon="simple-icons:sui" className="text-3xl" />
+          </div>
+        )}
         <div className="flex-1">
           <h3 className="text-gray-900 font-semibold text-lg">
             {project.configJson.name}
@@ -82,6 +90,12 @@ const ProjectItem = ({ status, project, handleReload }: ProjectItemProps) => {
               Block : {project.configJson.transactionBlocks}
             </span>
           </div>
+{/*
+          <div className="flex px-2 py-1 rounded-full items-center gap-1 bg-black text-cyan-500">
+            <span className="text-sm">
+              {project.configJson.isAutoReset ? 'Auto reset' : 'Persisted'}
+            </span>
+          </div> */}
 
           <div onClick={handleDelete}>
             <Icon
