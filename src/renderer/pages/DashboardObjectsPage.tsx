@@ -20,13 +20,15 @@ function DashboardObjectsPage() {
           address.address,
         );
 
+        console.log({ objects });
+
         if (objects && objects.length > 0) {
           for (const obj of objects) {
             result.push(obj);
           }
-          setObjectsList(result);
         }
       }
+      setObjectsList(result);
     }
   };
 
@@ -34,7 +36,7 @@ function DashboardObjectsPage() {
     fetching();
   }, [refresh]);
 
-  console.log({ refresh });
+  // console.log({ refresh });
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;

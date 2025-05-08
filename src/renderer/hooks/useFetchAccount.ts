@@ -4,7 +4,10 @@ import {
   AccountSlide,
 } from '@/renderer/states/account/reducer';
 import { useAppDispatch } from '@/renderer/states/hooks';
-import { ProjectSlide } from '@/renderer/states/project/reducer';
+import {
+  ProjectSlide,
+  useProjectState,
+} from '@/renderer/states/project/reducer';
 import { useRefreshState } from '@/renderer/states/refresh/reducer';
 import { formatBalanceFromRaw } from '@/renderer/utils/format';
 import { useSuiClient } from '@mysten/dapp-kit';
@@ -14,6 +17,7 @@ export const useFetchAccount = () => {
   const dispatch = useAppDispatch();
   const refresh = useRefreshState();
   const client = useSuiClient();
+  const project = useProjectState();
 
   const fetchBalance = async (address: string) => {
     try {
@@ -52,6 +56,8 @@ export const useFetchAccount = () => {
       }
     };
 
-    fetching();
-  }, [refresh]);
+    if (project.status.running) {
+      fetching();
+    }
+  }, [refresh, project.status.running]);
 };
