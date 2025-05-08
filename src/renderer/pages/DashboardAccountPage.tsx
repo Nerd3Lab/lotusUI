@@ -10,8 +10,10 @@ import Breadcrumb from '@/renderer/components/dashboard/Breadcrumb';
 import { useEffect, useState } from 'react';
 import { AddressType, CreateAccountResult } from '@/main/types/index';
 import { useSuiClient } from '@mysten/dapp-kit';
-import { useRefresh } from '@/renderer/hooks/useRefresh';
-import { useRefreshState } from '@/renderer/states/refresh/reducer';
+import {
+  RefreshSlide,
+  useRefreshState,
+} from '@/renderer/states/refresh/reducer';
 import AddAccountModal from '@/renderer/components/Modal/AddAccountModal';
 import { swalFire } from '@/renderer/utils/swalfire';
 import Swal from 'sweetalert2';
@@ -19,40 +21,15 @@ import AddAccountResultModal from '@/renderer/components/Modal/AddAccountResultM
 import Pagination from '@/renderer/components/utility/Pagination';
 import { useProjectState } from '@/renderer/states/project/reducer';
 import Switch from '@/renderer/components/utility/Switch';
+import {
+  AccountItemState,
+  useAccountState,
+} from '@/renderer/states/account/reducer';
+import { useAppDispatch } from '@/renderer/states/hooks';
 
-export interface Account {
-  index: number;
-  publicKey: string;
-  balance: string;
-}
-
-const AccountItem = ({
-  account,
-  fetching,
-}: {
-  account: AddressType;
-  fetching: () => void;
-}) => {
-  const client = useSuiClient();
-  const [balanceRaw, setBalanceRaw] = useState<string>('0');
-  const [balance, setBalance] = useState<string>('0');
-  const refresh = useRefreshState();
-  const fetchBalance = async () => {
-    try {
-      const ba = await client.getAllBalances({ owner: account.address });
-      const suiBalance = ba.find((b) => b.coinType === '0x2::sui::SUI');
-      if (suiBalance) {
-        setBalanceRaw(suiBalance.totalBalance);
-        setBalance(formatBalanceFromRaw(suiBalance.totalBalance));
-      }
-    } catch (error) {}
-  };
-
+const AccountItem = ({ account }: { account: AccountItemState }) => {
+  const dispatch = useAppDispatch();
   const project = useProjectState();
-
-  useEffect(() => {
-    fetchBalance();
-  }, [refresh]);
 
   const setActiveAccount = async () => {
     if (account.isActive) {
@@ -62,7 +39,7 @@ const AccountItem = ({
     try {
       await window.electron.account.setActiveAccount(account.address);
       swalFire().success(`Set active account to ${account.alias} done!`);
-      await fetching();
+      dispatch(RefreshSlide.actions.increaseRefresh());
     } catch (error) {
       swalFire().error('Failed to set active account');
     }
@@ -80,7 +57,7 @@ const AccountItem = ({
       setTimeout(() => {
         Swal.close();
         swalFire().success(`Request faucet for ${account.alias} done!`);
-        fetchBalance();
+        dispatch(RefreshSlide.actions.increaseRefresh());
       }, 1000);
     } else {
       Swal.close();
@@ -89,10 +66,10 @@ const AccountItem = ({
   };
 
   const deleteAccount = async () => {
-    if (account.isActive) {
-      swalFire().warn('Cannot delete active account!');
-      return;
-    }
+    // if (account.isActive) {
+    //   swalFire().warn('Cannot delete active account!');
+    //   return;
+    // }
 
     const check = await swalFire().question(
       `Are you sure you want to delete account ${account.alias}?`,
@@ -105,7 +82,7 @@ const AccountItem = ({
     const result = await window.electron.account.deleteAccount(account.address);
     if (result) {
       swalFire().success(`Delete account ${account.alias} done!`);
-      fetching();
+      dispatch(RefreshSlide.actions.increaseRefresh());
     } else {
       swalFire().error('Delete account failed!');
     }
@@ -139,8 +116,8 @@ const AccountItem = ({
             <Icon icon="icons8:plus" className="w-5 h-5" />
           </div>
           <div>
-            <b>{balance} SUI</b>
-            <p>{balanceRaw}</p>
+            <b>{account.balance} SUI</b>
+            <p>{account.balanceRaw}</p>
           </div>
         </div>
       </td>
@@ -157,26 +134,14 @@ const AccountItem = ({
 };
 
 function DashboardAccountPage() {
-  const [addresses, setAddresses] = useState<AddressType[]>([]);
-
-  const fetching = async () => {
-    const result = await window.electron.account.getAccounts();
-
-    console.log({ result });
-
-    if (result) {
-      setAddresses(result);
-    }
-  };
-
-  useEffect(() => {
-    fetching();
-  }, []);
+  const dispatch = useAppDispatch();
+  const addresses = useAccountState().lists;
 
   const [showModal, setShowModal] = useState(false);
 
   const onCloseModal = async () => {
-    await fetching();
+    dispatch(RefreshSlide.actions.increaseRefresh());
+
     setShowModal(false);
   };
 
@@ -215,7 +180,7 @@ function DashboardAccountPage() {
       </div>
 
       {/* <MnemonicDisplay /> */}
-      <div className="h-[65vh] overflow-y-auto">
+      <div className="h-[55vh] overflow-y-auto">
         <table className="w-full mt-4 bg-white px-2">
           <thead>
             <tr className="border-b border-gray-200">
@@ -240,7 +205,7 @@ function DashboardAccountPage() {
 
           <tbody className="">
             {paginatedAddresses.map((a) => (
-              <AccountItem account={a} key={a.address} fetching={fetching} />
+              <AccountItem account={a} key={a.address} />
             ))}
           </tbody>
         </table>

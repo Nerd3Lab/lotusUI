@@ -4,12 +4,12 @@ import { useEffect, useRef, useState } from 'react';
 import CopyText from '@/renderer/components/utility/CopyText';
 import { formatAddress } from '@/renderer/utils/format';
 import Pagination from '@/renderer/components/utility/Pagination';
-import { useRefresh } from '@/renderer/hooks/useRefresh';
 import { Icon } from '@iconify/react';
+import { useRefreshState } from '@/renderer/states/refresh/reducer';
 
 function DashboardObjectsPage() {
   const [objectsList, setObjectsList] = useState<ObjectDataResultItem[]>([]);
-  const refresh = useRefresh();
+  const refresh = useRefreshState();
   const fetching = async () => {
     const addresses = await window.electron.account.getAccounts();
 
@@ -33,6 +33,8 @@ function DashboardObjectsPage() {
   useEffect(() => {
     fetching();
   }, [refresh]);
+
+  console.log({ refresh });
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -81,7 +83,7 @@ function DashboardObjectsPage() {
         className="hidden"
       ></a>
 
-      <div className="h-[65vh] overflow-y-auto">
+      <div className="h-[55vh] overflow-y-auto">
         <table className="w-full mt-4 bg-white px-2">
           <thead>
             <tr className="border-b border-gray-200">
