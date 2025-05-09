@@ -5,7 +5,7 @@
     </picture>
 </p>
 
-[![Watch the video](https://img.youtube.com/vi/GwAGGE-0MHE/maxresdefault.jpg)](https://youtu.be/GwAGGE-0MHE)
+[![Watch the video](https://img.youtube.com/vi/GwAGGE-0MHE/maxresdefault.jpg)](https://youtu.be/xtSAae7rF0M)
 
 ### About lotusUI
 
