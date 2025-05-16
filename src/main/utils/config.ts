@@ -18,12 +18,30 @@ export const suiRepository = {
 
 
 export const suiBinaryPath = () => {
-  if (process.platform === 'darwin') {
-    return '/usr/local/opt/sui/bin/sui';
-  } else if (process.platform === 'win32') {
-    return 'C:\\ProgramData\\chocolatey\\bin\\sui.exe';
-  } else {
-    // Linux
-    return '/usr/bin/sui';
+  const { execSync } = require('child_process');
+  try {
+    if (process.platform === 'win32') {
+      try {
+        const whereSui = execSync('where sui').toString().trim();
+        if (whereSui) {
+          return whereSui.split('\r\n')[0];
+        }
+      } catch (error) {
+        // where command failed, fallback to default path
+      }
+      return 'C:\\ProgramData\\chocolatey\\bin\\sui.exe';
+    }
+    const whereisSui = execSync('whereis sui').toString().trim();
+    const paths = whereisSui.split(':')[1]?.trim();
+    if (!paths) {
+      return process.platform === 'darwin'
+        ? '/usr/local/opt/sui/bin/sui'
+        : '/usr/bin/sui';
+    }
+    return paths.split(' ')[0];
+  } catch (error) {
+    return process.platform === 'darwin'
+      ? '/usr/local/opt/sui/bin/sui'
+      : '/usr/bin/sui';
   }
 };
