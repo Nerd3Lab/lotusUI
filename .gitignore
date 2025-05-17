@@ -30,3 +30,5 @@ npm-debug.log.*
 
 private
 .env
+
+yarn.lock
