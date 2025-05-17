@@ -16,7 +16,6 @@ export const suiRepository = {
   mystenLabsSui: 'https://github.com/MystenLabs/sui.git',
 };
 
-
 export const suiBinaryPath = () => {
   const { execSync } = require('child_process');
   try {
@@ -31,8 +30,13 @@ export const suiBinaryPath = () => {
       }
       return 'C:\\ProgramData\\chocolatey\\bin\\sui.exe';
     }
-    const whereisSui = execSync('whereis sui').toString().trim();
-    const paths = whereisSui.split(':')[1]?.trim();
+    const paths = execSync('which sui', {
+      env: {
+        PATH: '/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin',
+      },
+    })
+      .toString()
+      .trim();
     if (!paths) {
       return process.platform === 'darwin'
         ? '/usr/local/opt/sui/bin/sui'
