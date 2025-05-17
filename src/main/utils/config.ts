@@ -23,7 +23,10 @@ export const suiBinaryPath = () => {
       try {
         const whereSui = execSync('where sui').toString().trim();
         if (whereSui) {
-          return whereSui.split('\r\n')[0];
+          return (
+            whereSui.split('\r\n')[0] ||
+            'C:\\ProgramData\\chocolatey\\bin\\sui.exe'
+          );
         }
       } catch (error) {
         // where command failed, fallback to default path
