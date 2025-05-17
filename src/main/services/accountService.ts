@@ -85,7 +85,14 @@ export class AccountService extends ParentService {
   async addAccount(
     payload: CreateAccountPayload,
   ): Promise<CreateAccountResult | undefined> {
-    const cmd = `${suiPath} client new-address ${payload.keyScheme} ${payload.alias} ${payload.wordLength} --json`;
+    const alias = payload.alias || '';
+    let cmd = '';
+    if (alias) {
+      cmd = `${suiPath} client new-address ${payload.keyScheme} ${alias} ${payload.wordLength} --json`;
+    } else {
+      cmd = `${suiPath} client new-address ${payload.keyScheme} --json`;
+    }
+
     try {
       const result = await this.execCmd(cmd);
       const resultJson = JSON.parse(result);
@@ -141,7 +148,7 @@ export class AccountService extends ParentService {
 
       return [];
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return [];
     }
   }

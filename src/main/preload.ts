@@ -65,6 +65,16 @@ const electronHandler = {
         isSuiNotInstalled?: boolean;
       }>,
     stopProject: () => ipcRenderer.invoke('node:stopProject') as Promise<void>,
+    getNetwork: () =>
+      ipcRenderer.invoke('node:getNetwork') as Promise<{
+        isSuccess: boolean;
+        network: string;
+      }>,
+    forceLocalNetwork: () =>
+      ipcRenderer.invoke('node:forceLocalNetwork') as Promise<{
+        isSuccess: boolean;
+        error: string;
+      }>,
   },
   account: {
     getAccounts: () =>

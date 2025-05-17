@@ -10,6 +10,7 @@ interface InputProps {
   label?: string;
   required?: boolean;
   type?: 'text' | 'number';
+  disabled?: boolean;
 }
 
 function Input({
@@ -22,6 +23,7 @@ function Input({
   label,
   required = false,
   type = 'text',
+  disabled = false,
 }: InputProps) {
   const [search, setSearch] = useState<string>(value);
   const [displayError, setDisplayError] = useState<string | undefined>(error);
@@ -62,6 +64,7 @@ function Input({
           placeholder={placeholder}
           required={required}
           className="border-0 outline-none text-gray-800 flex-1 bg-transparent"
+          disabled={disabled}
         />
       </div>
       {displayError && (

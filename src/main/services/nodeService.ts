@@ -55,6 +55,14 @@ export class NodeService extends ParentService {
         SUI_LOCAL_NODE_STATUS = null;
       }
     });
+
+    ipcMain.handle('node:getNetwork', async () => {
+      return this.getNetwork();
+    });
+
+    ipcMain.handle('node:forceLocalNetwork', async () => {
+      return this.forceLocalNetwork();
+    });
   }
 
   async runProject(name: string) {
@@ -378,5 +386,44 @@ export class NodeService extends ParentService {
         };
       }
     }
+  }
+
+  async getNetwork() {
+    return new Promise((resolve) => {
+      exec(`${suiPath} client active-env`, (error, stdout, stderr) => {
+        if (error) {
+          console.log('Error getting network:', error);
+          resolve({
+            isSuccess: false,
+            error: error.message,
+          });
+          return;
+        }
+
+        resolve({
+          isSuccess: true,
+          network: stdout.trim(),
+        });
+      });
+    });
+  }
+
+  async forceLocalNetwork() {
+    return new Promise((resolve) => {
+      exec(`${suiPath} client switch --env localnet`, (error, stdout, stderr) => {
+        if (error) {
+          console.log('Error forcing local network:', error);
+          resolve({
+            isSuccess: false,
+            error: error.message,
+          });
+          return;
+        }
+
+        resolve({
+          isSuccess: true,
+        });
+      });
+    });
   }
 }

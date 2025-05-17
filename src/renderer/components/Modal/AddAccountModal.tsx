@@ -7,6 +7,7 @@ import { swalFire } from '@/renderer/utils/swalfire';
 import Swal from 'sweetalert2';
 import { CreateAccountResult } from '@/main/types/index';
 import Button from '@/renderer/components/utility/Button';
+import Switch from '@/renderer/components/utility/Switch';
 
 type AddAccountModalProps = {
   isOpen: boolean;
@@ -36,6 +37,7 @@ export default function AddAccountModal({
   const [keyScheme, setKeyScheme] = useState('ed25519');
   const [wordLength, setWordLength] = useState('word12');
   const [faucetAmount, setFaucetAmount] = useState('1,000');
+  const [isAuto, setIsAuto] = useState(true);
 
   const handleConfirm = async () => {
     swalFire().loading('Creating account...');
@@ -71,7 +73,15 @@ export default function AddAccountModal({
     }
   };
 
-  const isDisabled = alias === '' || keyScheme === '' || wordLength === '';
+  const onChageAuto = (value: boolean) => {
+    if (value) {
+      setAlias('');
+      setWordLength('word12');
+    }
+    setIsAuto(value);
+  };
+
+  const isDisabled = keyScheme === '' || wordLength === '';
 
   return (
     <div className="fixed inset-0 flex justify-center items-center z-50">
@@ -98,14 +108,21 @@ export default function AddAccountModal({
         </div>
 
         <div className="space-y-4">
-          <Input
-            label="Alias"
-            value={alias}
-            required
-            onChange={handleAliasChange}
-            placeholder="Type your alias of account"
-            error={''}
-          />
+          <div className="flex items-center gap-2 w-full">
+            <Input
+              label="Alias"
+              value={alias}
+              onChange={handleAliasChange}
+              placeholder="Type your alias of account (optional)"
+              className="flex-1"
+              disabled={isAuto}
+            />
+            <div className="flex flex-col items-center">
+              <span>Auto</span>
+              <Switch value={isAuto} onChange={onChageAuto} />
+            </div>
+          </div>
+
           <hr className="border border-[#E9EAEB]" />
           <Select
             label="Key Scheme"
@@ -123,6 +140,7 @@ export default function AddAccountModal({
             value={wordLengthOptions.find((opt) => opt.value === wordLength)}
             onSelect={(opt) => setWordLength(opt.value)}
             placeholder="Select word length"
+            disabled={isAuto}
           />
           {/* <div className="relative">
             <div className="w-full">

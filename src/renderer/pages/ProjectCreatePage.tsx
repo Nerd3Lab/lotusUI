@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/utility/Button';
 import Input from '../components/utility/Input';
+import { swalFire } from '@/renderer/utils/swalfire';
 
 function ProjectCreate() {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ function ProjectCreate() {
   const dispatch = useAppDispatch();
 
   const onSubmit = async () => {
+    swalFire().loading('Creating project...');
     if (disabled) {
       return;
     }
@@ -44,11 +46,17 @@ function ProjectCreate() {
       description: description.trim(),
     });
 
-    console.log({ result });
-
     if (!result) {
+      swalFire().error('Failed to create project');
       return;
     }
+
+    if ((result as any).error) {
+      swalFire().error((result as any).error);
+      return;
+    }
+
+    swalFire().success('Project created successfully');
 
     // dispatch(ProjectSlide.actions.selectProject(result));
 

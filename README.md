@@ -69,10 +69,10 @@ yarn package:all
 
 ### Download
 
-- On macOs (Apple chip), install lotusUI with download link [here](https://github.com/Nerd3Lab/lotusUI/releases/download/v1.0.3/lotusUI-1.0.3-arm64.dmg)
-- On macOs (Intel chip), install lotusUI with download link [here](https://github.com/Nerd3Lab/lotusUI/releases/download/v1.0.3/lotusUI-1.0.3.dmg)
-- On Windows x64, install lotusUI with download link [here](https://github.com/Nerd3Lab/lotusUI/releases/download/v1.0.3/lotusUI-1.0.3-win.zip)
-- On Windows x32, install lotusUI with download link [here](https://github.com/Nerd3Lab/lotusUI/releases/download/v1.0.3/lotusUI-1.0.3-ia32-win.zip)
+- On macOs (Apple chip), install lotusUI with download link [here](https://github.com/Nerd3Lab/lotusUI/releases/download/v1.0.4/lotusUI-1.0.4-arm64.dmg)
+- On macOs (Intel chip), install lotusUI with download link [here](https://github.com/Nerd3Lab/lotusUI/releases/download/v1.0.4/lotusUI-1.0.4.dmg)
+- On Windows x64, install lotusUI with download link [here](https://github.com/Nerd3Lab/lotusUI/releases/download/v1.0.4/lotusUI-1.0.4-win.zip)
+- On Windows x32, install lotusUI with download link [here](https://github.com/Nerd3Lab/lotusUI/releases/download/v1.0.4/lotusUI-1.0.4-ia32-win.zip)
 
 ### Contributing
 

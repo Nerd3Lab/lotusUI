@@ -110,6 +110,13 @@ export class ProjectService extends ParentService {
     payload: ProjectCreatePayload,
   ): Promise<ProjectInterface | undefined | { error: string }> {
     try {
+      const checksui = await this.nodeService!.getSuiVersion();
+      if (!checksui.isSuccess) {
+        return {
+          error: checksui.error || 'Sui not installed',
+        };
+      }
+
       const projectPath = appPath.projects;
       const projectDir = `${projectPath}/${payload.name}`;
 

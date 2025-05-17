@@ -32,6 +32,14 @@ export const useFetchAccount = () => {
     } catch (error) {}
   };
 
+  const fetchNetwork = async () => {
+    const network = await window.electron.node.getNetwork();
+
+    if (network.isSuccess) {
+      dispatch(ProjectSlide.actions.setNetwork(network.network));
+    }
+  };
+
   useEffect(() => {
     const fetching = async () => {
       const result: AccountItemState[] = [];
@@ -58,6 +66,7 @@ export const useFetchAccount = () => {
 
     if (project.status.running) {
       fetching();
+      fetchNetwork();
     }
   }, [refresh, project.status.running]);
 };

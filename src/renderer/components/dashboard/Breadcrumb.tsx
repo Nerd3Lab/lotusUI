@@ -13,8 +13,12 @@ const Breadcrumb = ({ label }: { label: string }) => {
   };
   return (
     <div className="flex gap-1 items-center">
-      <div onClick={onClick} className="p-1 cursor-pointer text-gray-500 hover:text-cyan-500">
-        <Icon icon="lsicon:home-outline" className="w-5 h-5 text-gray-500" />
+      <div
+        onClick={onClick}
+        className="p-1 cursor-pointer text-black hover:text-cyan-500 flex items-center gap-2 font-semibold"
+      >
+        <Icon icon="lsicon:home-outline" className="w-5 h-5" />
+        Home
       </div>
       <div className="p-1">
         <Icon icon="line-md:chevron-right" className="w-4 h-4 text-gray-300" />

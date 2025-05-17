@@ -13,6 +13,7 @@ interface ProjectState extends ProjectInterface {
   transactionBlocks: number;
   checkpointDone: boolean;
   lastestCheckpoint: number;
+  network: string;
 }
 
 const initialState: ProjectState = {
@@ -36,6 +37,7 @@ const initialState: ProjectState = {
   transactionBlocks: 0,
   checkpointDone: false,
   lastestCheckpoint: 0,
+  network: '',
 };
 
 export const ProjectSlide = createSlice({
@@ -81,7 +83,10 @@ export const ProjectSlide = createSlice({
     },
     setLastestCheckpoint: (state, { payload }: { payload: number }) => {
       state.lastestCheckpoint = payload;
-    }
+    },
+    setNetwork: (state, { payload }: { payload: string }) => {
+      state.network = payload;
+    },
   },
 });
 
