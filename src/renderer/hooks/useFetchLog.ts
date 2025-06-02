@@ -17,8 +17,6 @@ export const useFetchLog = () => {
         lastestCheckpoint,
       } = message as NodeRunLogInterface;
 
-      // console.log({ messageLog, transactionBlocks });
-
       dispatch(ProjectSlide.actions.setStatus({ loading, running, error }));
       if (transactionBlocks) {
         dispatch(ProjectSlide.actions.setTransactionBlocks(transactionBlocks));

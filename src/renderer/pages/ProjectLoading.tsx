@@ -27,22 +27,27 @@ function ProjectLoading() {
       navigate('/');
       return;
     }
-    const projectGet = await window.electron.project.getProject(
-      project.configJson.name,
-    );
-
-    if (!projectGet) {
-      dispatch(
-        ProjectSlide.actions.addLog(
-          `Project : ${project.configJson.name} not found`,
-        ),
+    const isAutoReset = project?.configJson.isAutoReset;
+    console.log({ isAutoReset });
+    if (!isAutoReset) {
+      const projectGet = await window.electron.project.getProject(
+        project.configJson.name,
       );
-      setisError(true);
-      return;
+
+      if (!projectGet) {
+        dispatch(
+          ProjectSlide.actions.addLog(
+            `Project : ${project.configJson.name} not found`,
+          ),
+        );
+        setisError(true);
+        return;
+      }
     }
 
     const result = await window.electron.node.runProject(
       project.configJson.name,
+      isAutoReset,
     );
 
     if (result && result.isSuiNotInstalled) {
@@ -82,6 +87,7 @@ function ProjectLoading() {
 
   const running = project.status.running;
   const checkpointDone = project.checkpointDone;
+
 
   useEffect(() => {
     // if (running && checkpointDone) {

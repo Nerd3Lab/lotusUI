@@ -36,9 +36,12 @@ export class NodeService extends ParentService {
   }
 
   registerEvents() {
-    ipcMain.handle('node:runProject', async (_, name: string) => {
-      return this.runProject(name);
-    });
+    ipcMain.handle(
+      'node:runProject',
+      async (_, name: string, isAutoReset?: boolean) => {
+        return this.runProject(name, isAutoReset);
+      },
+    );
 
     ipcMain.handle('node:getSuiVersion', async () => {
       return this.getSuiVersion();
@@ -65,16 +68,18 @@ export class NodeService extends ParentService {
     });
   }
 
-  async runProject(name: string) {
+  async runProject(name: string, isAutoReset = false) {
     try {
-      const project = this.projectService!.getProject(name);
+      if (!isAutoReset) {
+        const project = this.projectService!.getProject(name);
 
-      if (!project) {
-        {
-          return {
-            isSuccess: false,
-            error: `Project ${name} not found`,
-          };
+        if (!project) {
+          {
+            return {
+              isSuccess: false,
+              error: `Project ${name} not found`,
+            };
+          }
         }
       }
 
@@ -115,7 +120,11 @@ export class NodeService extends ParentService {
       const dataDir = `${projectDir}/data`;
 
       const env = { RUST_LOG: 'off,sui_node=info' };
-      const args = ['start', `--network.config '${dataDir}'`, '--with-faucet'];
+      let args = ['start', `--network.config '${dataDir}'`, '--with-faucet'];
+
+      if (isAutoReset) {
+        args = ['start', '--with-faucet', '--force-regenesis'];
+      }
 
       // const isLighnode = !project.configJson.fullnode;
 
@@ -161,41 +170,65 @@ export class NodeService extends ParentService {
 
           const suiNodeStatus = await this.getSuiNodeStatus();
 
-          if (suiNodeStatus && suiNodeStatus.isSuccess) {
-            const transactionBlocks = suiNodeStatus.transactionBlocks;
-            SUI_LOCAL_NODE_STATUS = {
-              isRunning: suiNodeStatus.isRunning!,
-              transactionBlocks: transactionBlocks || 0,
-            };
+          if (!isAutoReset) {
+            if (suiNodeStatus && suiNodeStatus.isSuccess) {
+              const transactionBlocks = suiNodeStatus.transactionBlocks;
+              SUI_LOCAL_NODE_STATUS = {
+                isRunning: suiNodeStatus.isRunning!,
+                transactionBlocks: transactionBlocks || 0,
+              };
 
-            const project = this.projectService!.getProject(name);
+              const project = this.projectService!.getProject(name);
 
-            const checkpointDone =
-              +transactionBlocks >= project!.configJson.transactionBlocks;
+              const checkpointDone =
+                +transactionBlocks >= project!.configJson.transactionBlocks;
 
-            // console.log({
-            //   transactionBlocks,
-            //   lastest: project!.configJson.transactionBlocks,
-            // });
+              // console.log({
+              //   transactionBlocks,
+              //   lastest: project!.configJson.transactionBlocks,
+              // });
 
-            if (checkpointDone) {
-              this.projectService!.updateProject(
-                name,
-                'transactionBlocks',
-                +transactionBlocks,
-              );
+              if (checkpointDone) {
+                this.projectService!.updateProject(
+                  name,
+                  'transactionBlocks',
+                  +transactionBlocks,
+                );
+              }
+
+              if (this.isActive() && SUI_LOCAL_NODE_STATUS?.isRunning) {
+                this.window?.webContents.send('node-run-log', {
+                  message,
+                  loading: false,
+                  running: true,
+                  error: false,
+                  transactionBlocks: SUI_LOCAL_NODE_STATUS.transactionBlocks,
+                  checkpointDone,
+                  lastestCheckpoint: project!.configJson.transactionBlocks,
+                });
+              }
             }
+          } else {
+            if (suiNodeStatus && suiNodeStatus.isSuccess) {
+              const transactionBlocks = suiNodeStatus.transactionBlocks;
+              SUI_LOCAL_NODE_STATUS = {
+                isRunning: suiNodeStatus.isRunning!,
+                transactionBlocks: transactionBlocks || 0,
+              };
 
-            if (this.isActive() && SUI_LOCAL_NODE_STATUS?.isRunning) {
-              this.window?.webContents.send('node-run-log', {
-                message,
-                loading: false,
-                running: true,
-                error: false,
-                transactionBlocks: SUI_LOCAL_NODE_STATUS.transactionBlocks,
-                checkpointDone,
-                lastestCheckpoint: project!.configJson.transactionBlocks,
-              });
+              console.log('success', { suiNodeStatus });
+
+              if (this.isActive() && SUI_LOCAL_NODE_STATUS?.isRunning) {
+                this.window?.webContents.send('node-run-log', {
+                  message,
+                  loading: false,
+                  running: true,
+                  error: false,
+                  transactionBlocks: SUI_LOCAL_NODE_STATUS.transactionBlocks,
+                  checkpointDone: true,
+                  lastestCheckpoint: 0,
+                });
+              }
             }
           }
 
@@ -410,20 +443,23 @@ export class NodeService extends ParentService {
 
   async forceLocalNetwork() {
     return new Promise((resolve) => {
-      exec(`${suiPath} client switch --env localnet`, (error, stdout, stderr) => {
-        if (error) {
-          console.log('Error forcing local network:', error);
-          resolve({
-            isSuccess: false,
-            error: error.message,
-          });
-          return;
-        }
+      exec(
+        `${suiPath} client switch --env localnet`,
+        (error, stdout, stderr) => {
+          if (error) {
+            console.log('Error forcing local network:', error);
+            resolve({
+              isSuccess: false,
+              error: error.message,
+            });
+            return;
+          }
 
-        resolve({
-          isSuccess: true,
-        });
-      });
+          resolve({
+            isSuccess: true,
+          });
+        },
+      );
     });
   }
 }

@@ -58,8 +58,8 @@ const electronHandler = {
       ipcRenderer.invoke('project:remove', name) as Promise<boolean>,
   },
   node: {
-    runProject: (name: string) =>
-      ipcRenderer.invoke('node:runProject', name) as Promise<{
+    runProject: (name: string, isAutoReset?: boolean) =>
+      ipcRenderer.invoke('node:runProject', name, isAutoReset) as Promise<{
         isSuccess: boolean;
         error: string;
         isSuiNotInstalled?: boolean;

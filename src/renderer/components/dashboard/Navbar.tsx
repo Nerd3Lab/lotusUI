@@ -63,10 +63,10 @@ const NavBar = () => {
           />
 
           <StatusItem
-            label="Node"
+            label="Type"
             value={
               <div className="flex items-center gap-1">
-                {project.configJson.fullnode ? 'Fullnode' : 'LightNode'}
+                {project.configJson.isAutoReset ? 'Auto Reset' : 'Persisted'}
               </div>
             }
           />

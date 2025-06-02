@@ -5,10 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import ProjectItem from '../components/project/ProjectItem';
 import Button from '../components/utility/Button';
 import SearchBox from '../components/utility/SearchBox';
+import { ProjectSlide } from '@/renderer/states/project/reducer';
+import { useAppDispatch } from '@/renderer/states/hooks';
 
 function ProjectPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
+  const dispatch = useAppDispatch();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -28,6 +31,24 @@ function ProjectPage() {
 
   const handleReload = () => {
     setReload(!reload);
+  };
+
+  const onClickQuick = async () => {
+    dispatch(ProjectSlide.actions.selectProject({
+      path: '',
+      configJson: {
+        name: 'Localnet',
+        fullnode: false,
+        epochDuration: 60000,
+        isAutoReset: true,
+        createdAt: +(new Date()),
+        lastedActive: +(new Date()),
+        description: 'Run local sui node without persisting data',
+        transactionBlocks: 0,
+      },
+    }));
+
+    navigate('/loading');
   };
 
   return (
@@ -58,6 +79,21 @@ function ProjectPage() {
             handleReload={handleReload}
           />
         ))}
+      </div>
+
+      <div className='flex justify-end pt-8'>
+        <div
+          onClick={onClickQuick}
+          className={`border-2 px-4 py-4 text-white rounded-2xl flex gap-4 items-center transition-all cursor-pointer  bg-cyan-500 hover:border-cyan-500 hover:bg-cyan-600 border-cyan-500`}
+        >
+          <div className={`p-2 rounded-full  bg-black text-cyan-500`}>
+            <Icon icon="token-branded:suip" className="text-4xl" />
+          </div>
+          <div>
+            <b className="font-semibold text-gray-800 mt-2 text-xl">Quick Start</b>
+            <p className='text-lg'>Run local sui node without persisting data</p>
+          </div>
+        </div>
       </div>
     </div>
   );
